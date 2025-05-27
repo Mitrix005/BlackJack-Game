@@ -1,0 +1,18 @@
+# PyCharm
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyd
+*.so
+
+# Assets/temporary files
+*.tmp
+*.log
+
+# System
+.DS_Store
+Thumbs.db
