@@ -8,8 +8,8 @@ przekroczy 21, grzacz natychmiast przegrywa grę.
 2. Wartości kart: 
 - karty od 2 do 10 mają wartość równą swojej wartości liczbowej
 - figury (walet, dama, król) mają wartość równą 10 punktów
-- as przybiera taką wartość która jest korzystniejsza dla gracza, jednak znajdowac 
-musi się w zakresie od 1 do 11.
+- as przybiera taką wartość która jest korzystniejsza dla gracza, jednak wartość ta 
+musi być równa 1 lub 11 punktów.
 
 3. Przebieg rozgrywki:
 - na początku gry każdy gracz dostaje dwie karty, które są widoczne tylko dla tego gracza
