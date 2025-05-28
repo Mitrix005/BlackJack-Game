@@ -1,6 +1,6 @@
 import pygame
 import sys
-
+#Eryk Sobczyk zrobiłem za ciebie robotę której ty nie zrobiłeś
 # Inicjalizacja Pygame
 pygame.init()
 
