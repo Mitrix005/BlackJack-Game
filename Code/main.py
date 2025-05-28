@@ -22,22 +22,22 @@ FPS = 60
 running = True
 while running:
     # Obsługa zdarzeń
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+    #for event in pygame.event.get():
+       # if event.type == pygame.QUIT:
+           # running = False
 
     # Logika gry tutaj
 
     # Czyszczenie ekranu
-    screen.fill(BLACK)
+    #screen.fill(BLACK)
 
     # Rysowanie na ekranie tutaj
 
     # Aktualizacja ekranu
-    pygame.display.flip()
+    #pygame.display.flip()
 
     # Kontrola FPS
-    clock.tick(FPS)
+#clock.tick(FPS)
 
 # Zakończenie Pygame
 pygame.quit()
