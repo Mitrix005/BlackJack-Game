@@ -32,6 +32,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 main_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("BlackJack-Game")
 
 button = Button(main_screen,300,100,200, 60,"Button", (40,40,40),(32,32,32))
 
