@@ -1,14 +1,31 @@
 import pygame
 import os
+import configparser
+
+config = configparser.ConfigParser()
+config_file = 'config.cfg'
+
+default_settings = {
+    'Display': {'fullscreen': 'True'}
+}
+
+if not os.path.isfile(config_file):
+    for section, options in default_settings.items():
+        config[section] = options
+        with open(config_file,'w') as configfile:
+            config.write(configfile)
+else:
+    config.read(config_file)
 
 class Button:
-    def __init__(self, screen, x, y, width, height, text, color, hover_color, text_color=(255, 255, 255), font=None):
+    def __init__(self, screen, x, y, width, height, text, color, hover_color, click_sound=None, text_color=(255, 255, 255), font=None):
         self.rect = pygame.Rect(x, y, width, height)
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.color = color
+        self.click_sound = click_sound
         self.screen = screen
         self.text = text
         self.hover_color = hover_color
@@ -33,6 +50,10 @@ class Button:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 if self.rect.collidepoint(pygame.mouse.get_pos()):
+                    if self.click_sound==None:
+                        return True
+                    else:
+                        self.click_sound.s.play()
                     return True
         return False
 
@@ -54,7 +75,7 @@ class Sound:
 class MusicManager:
     def __init__(self):
         self.menu_music_path = self.load("../Audio/menu_theme.mp3")
-        self.game_music_path = self.load('../Audio/soundtrack.mp3')
+        self.game_music_path = self.load('../Audio/game_theme_low_stakes.mp3')
         self.state = None
 
     def play_menu(self):
@@ -95,19 +116,28 @@ class ImageManager:
 
 pygame.init()
 
+full_screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+
 SCREEN_WIDTH = 1472
 SCREEN_HEIGHT = 832
 
 main_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+#main_screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.display.set_caption("BlackJack-Game")
 
-play_button = Button(main_screen,636,400,200, 60,"Play", (40,40,40),(32,32,32))
+button_click_sound = Sound('../Audio/rozdanie_karty.mp3')
+button_click_sound.s.set_volume(0.5)
 
-gamble_button = Button(main_screen, 636, 500, 200, 60, "$ Gamble $", (255,215,0), (255,190,0))
+play_button = Button(main_screen,636,400,200, 60,"Play", (40,40,40),(32,32,32), button_click_sound)
 
-quit_button = Button(main_screen, 636, 600, 200, 60, "Quit", (40,40,40), (32,32,32))
+gamble_button = Button(main_screen, 636, 500, 200, 60, "$ Gamble $", (255,215,0), (255,190,0), button_click_sound)
 
-back_to_menu = Button(main_screen,1100, 650, 200, 60, "Back", (40,40,40),(32,32,32))
+quit_button = Button(main_screen, 636, 700, 200, 60, "Quit", (40,40,40), (32,32,32), button_click_sound)
+
+back_to_menu = Button(main_screen,1100, 650, 200, 60, "Back", (40,40,40),(32,32,32), button_click_sound)
+
+options_button = Button(main_screen, 636,600, 200, 60, "Options", (40,40,40), (32,32,32), button_click_sound)
 
 #Zmienne Gry
 music_manager = MusicManager()
@@ -138,12 +168,19 @@ while running:
                 state="GAME"
             if gamble_button.handle_event(event):
                 jackpot_sound.s.play()
+            if options_button.handle_event(event):
+                state="OPTIONS"
             if quit_button.handle_event(event):
                 running = False
         if state=="GAME":
             back_to_menu.draw(main_screen)
             if back_to_menu.handle_event(event):
                 state="MENU"
+        if state=="OPTIONS":
+            back_to_menu.draw(main_screen)
+            if back_to_menu.handle_event(event):
+                state="MENU"
+
 
 
 
@@ -153,11 +190,14 @@ while running:
         back_to_menu.active = False
         play_button.active = True
         gamble_button.active = True
+        options_button.active = True
         quit_button.active = True
 
         main_screen.blit(main_menu_background, (0, 0))
 
         play_button.draw(main_screen)
+
+        options_button.draw(main_screen)
 
         gamble_button.draw(main_screen)
 
@@ -165,12 +205,22 @@ while running:
     if state == "GAME":
         play_button.active = False
         gamble_button.active = False
+        options_button.active = False
         quit_button.active = False
         back_to_menu.active = True
         if music_manager.state!="GAME":
             music_manager.play_game()
 
         main_screen.blit(table, (0, 0))
+        back_to_menu.draw(main_screen)
+
+    if state == "OPTIONS":
+        play_button.active = False
+        gamble_button.active = False
+        options_button.active = False
+        quit_button.active = False
+        back_to_menu.active = True
+        main_screen.blit(main_menu_background, (0,0))
         back_to_menu.draw(main_screen)
 
 
