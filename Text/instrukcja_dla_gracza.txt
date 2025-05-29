@@ -11,6 +11,13 @@ przekroczy 21, grzacz natychmiast przegrywa grę.
 - as przybiera taką wartość która jest korzystniejsza dla gracza, jednak wartość ta 
 musi być równa 1 lub 11 punktów.
 
+2.1. Wartści żetonów:
+-Wartość żetonu białego wynosi 1
+-Wartość żetonu cerwonego wynosi 5
+-Wartość żetonu niebieskiego wynosi 10
+-Wartość żetonu zielonego wynosi 25
+-Wartość żetonu czarnego wynosi 100
+
 3. Przebieg rozgrywki:
 - na początku gry każdy gracz dostaje dwie karty, które są widoczne tylko dla tego gracza
 - krupier również dostaje dwie karty, jednak jedna z nich jest widoczna dla reszty graczy
