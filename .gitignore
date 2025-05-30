@@ -1,1 +1,29 @@
+# PyCharm
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyd
+*.so
+
+# Assets/temporary files
+*.tmp
+*.log
+
+# System
+.DS_Store
+Thumbs.db
+
+# Konfiguracja (dodane z main)
 Code/config.cfg
+
+# Ignoruj cały folder .idea z wyjątkiem wybranych plików
+.idea/*
+!.idea/misc.xml
+!.idea/modules.xml
+!.idea/vcs.xml
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
