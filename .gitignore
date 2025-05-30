@@ -16,3 +16,6 @@ __pycache__/
 # System
 .DS_Store
 Thumbs.db
+
+# Konfiguracja (dodane z main)
+Code/config.cfg
