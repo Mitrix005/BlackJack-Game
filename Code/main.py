@@ -1,6 +1,7 @@
 import pygame
 import os
 import configparser
+from lootboxy import Lootbox
 
 from pygame import SurfaceType      # potrzebne do adnotacji
 from pygame.mixer import Sound      # potrzebne do adnotacji

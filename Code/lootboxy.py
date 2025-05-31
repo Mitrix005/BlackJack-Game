@@ -16,6 +16,12 @@ class Rarity(Enum):
     EPIC = "epic"
     LEGENDARY = "legendary"
 
+class Lootbox():
+
+    pass
+
+
+
 
 
 '''
