@@ -200,7 +200,7 @@ quit_button = Button(main_screen, 636, 700, 200, 60, "Quit", (40,40,40), (32,32,
 
 back_to_menu = Button(main_screen,1100, 650, 200, 60, "Back", (40,40,40),(32,32,32), button_click_sound)
 
-options_button = Button(main_screen, 636,600, 200, 60, "Options", (40,40,40), (32,32,32), button_click_sound)
+options_button = Button(main_screen,  636,600, 200, 60, "Options", (40,40,40), (32,32,32), button_click_sound)
 
 fullscreen_button_info = Button(main_screen,300, 300, 200, 60, "Fullscreen", (40,40,40), (40,40,40))
 

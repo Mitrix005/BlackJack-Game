@@ -72,6 +72,31 @@ class Lootbox():
         self.open_sound = open_sound
         self.spin_sound = spin_sound
 
+    def open(self):
+        if not self.is_open and not self.is_spinning:
+            self.is_spinning = True
+            self.spin_progress = 0
+            if self.open_sound:
+                self.open_sound.play()
+
+    def select_reward(self):
+        reward_pool = self.reward[self.rarity]
+        self.selected_reward = random.choice(reward_pool)
+        self.current_texture = self.selected_reward["texture"]
+
+
+    def update(self):
+        if self.is_spinning:
+            self.spin_progress = self.spin_progress + self.spin_speed
+            if self.spin_progress >= 100:
+                self.is_spinning = False
+                self.is_open = True
+                self.select_reward()
+            elif self.spin_sound and int(self.spin_progress) % 10 ==0:
+                self.spin_sound.play()
+
+
+
 
     pass
 
