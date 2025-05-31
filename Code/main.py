@@ -183,6 +183,10 @@ pygame.display.set_caption("BlackJack-Game")
 # dzwieki
 jackpot_sound = Sound('../Audio/Jackpot.wav')
 jackpot_sound.s.set_volume(0.5)
+lootbox_open_sound = Sound("../Audio/case_opening.wav")
+lootbox_open_sound.s.set_volume(0.5)
+lootbox_spin_sound = Sound("../Audio/case_spin.wav")
+lootbox_spin_sound.s.set_volume(0.5)
 button_click_sound = Sound('../Audio/rozdanie_karty.mp3')
 button_click_sound.s.set_volume(0.5)
 
