@@ -111,6 +111,7 @@ class MusicManager:
     def __init__(self) -> None:
         self.menu_music_path = self.load("../Audio/menu_theme.mp3")
         self.game_music_path = self.load('../Audio/game_theme_low_stakes.mp3')
+        self.game_music_path = self.load("../Audio/case_theme.wav")
         self.state = None
 
     def play_menu(self) -> None:
@@ -124,6 +125,15 @@ class MusicManager:
             pygame.mixer.music.load(self.game_music_path)
             pygame.mixer.music.play(-1)
             self.state = "GAME"
+
+
+    def play_gamble(self) -> None:
+        if self.state != "GAMBLE":
+            pygame.mixer.music.load(self.game_music_path)
+            pygame.mixer.music.play(-1)
+            self.state = "GAMBLE"
+
+
 
     def stop_music(self) -> None:
         pygame.mixer.music.stop()
@@ -241,10 +251,15 @@ while running:
                 state = "GAME"
             if gamble_button.handle_event(event):
                 jackpot_sound.s.play()
+                state = "GAMBLE"
             if options_button.handle_event(event):
                 state = "OPTIONS"
             if quit_button.handle_event(event):
                 running = False
+        if state == "GAMBLE":
+            if back_to_menu.handle_event(event):
+                state = "MENU"
+
         if state == "GAME":                                     # wszystkie zdarzenia w game
             if back_to_menu.handle_event(event):
                 state = "MENU"
@@ -318,6 +333,23 @@ while running:
         fullscreen_button.draw(main_screen)
         fullscreen_button_info.draw(main_screen)
         back_to_menu.draw(main_screen)
+
+
+    if state == "GAMBLE":
+
+        play_button.active = False
+        gamble_button.active = False
+        options_button.active = False
+        quit_button.active = False
+        fullscreen_button.active = False
+        fullscreen_button_info.active = False
+        back_to_menu.active = True
+
+        main_screen.blit(case_background, (0, 0))
+        back_to_menu.draw(main_screen)
+
+        if music_manager.state != "GAMBLE":
+            music_manager.play_gamble()
 
 
     pygame.display.flip() #odswiezenie ekranu
