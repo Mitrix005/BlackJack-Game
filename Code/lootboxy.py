@@ -17,6 +17,41 @@ class Rarity(Enum):
     LEGENDARY = "legendary"
 
 class Lootbox():
+    def __init__(self, x : int, y : int) -> None:
+        self.x = x
+        self.y = y
+        self.width = 200
+        self.height = 200
+        self.is_open = False
+        self.is_spinning = False
+        self.spin_speed = 1.5
+        self.selected_reward = None
+        self.spin_progress = 0
+        self.rarity = self.determinate_rarity()
+        self.color = self.rarity.value
+        self.reward = self.load_rewards()
+        self.current_texture = None
+        self.open_sound = None
+
+
+    def determinate_rarity(self) -> Rarity:
+        roll = random.random()
+        if roll < 0.01: return Rarity.LEGENDARY
+        elif roll < 0.1: return Rarity.EPIC
+        elif roll < 0.3: return Rarity.RARE
+        else : return Rarity.COMMON
+
+    def load_rewards(self) -> dict:
+        return{
+            Rarity.COMMON : [
+                {"name" : "czarmuch", "texture" : pygame.image.load("../Graphics/rewers2.png")}
+            ]
+            Rarity.RARE : [
+                {"name" : "garnuch", "texture" : pygame.image.load("../Graphics/")}
+            ]
+        }
+
+
 
     pass
 
