@@ -36,6 +36,9 @@ default_settings = {
     'Display': {'fullscreen': 'True'}
 }
 
+current_lootbox = None
+lootbox_active = False
+
 # sprawdza czy istnieje config, jak nie to go tworzy i uzupełnia z default_settings (config jest tylko lokalny i jest w .gitignore)
 if not os.path.isfile(config_file):
     for section, options in default_settings.items():
@@ -111,7 +114,7 @@ class MusicManager:
     def __init__(self) -> None:
         self.menu_music_path = self.load("../Audio/menu_theme.mp3")
         self.game_music_path = self.load('../Audio/game_theme_low_stakes.mp3')
-        self.game_music_path = self.load("../Audio/case_theme.wav")
+        self.gamble_music_path = self.load("../Audio/case_theme.wav")
         self.state = None
 
     def play_menu(self) -> None:
@@ -129,7 +132,7 @@ class MusicManager:
 
     def play_gamble(self) -> None:
         if self.state != "GAMBLE":
-            pygame.mixer.music.load(self.game_music_path)
+            pygame.mixer.music.load(self.gamble_music_path)
             pygame.mixer.music.play(-1)
             self.state = "GAMBLE"
 
@@ -259,6 +262,8 @@ while running:
         if state == "GAMBLE":
             if back_to_menu.handle_event(event):
                 state = "MENU"
+                current_lootbox = None
+                lootbox_active = False
 
         if state == "GAME":                                     # wszystkie zdarzenia w game
             if back_to_menu.handle_event(event):
@@ -350,6 +355,48 @@ while running:
 
         if music_manager.state != "GAMBLE":
             music_manager.play_gamble()
+
+        if current_lootbox is None:
+            current_lootbox = Lootbox(
+                x = main_screen.get_width()//2 -100,
+                y = main_screen.get_height()//2 -100,
+
+
+            )
+            current_lootbox.load_sounds(
+                open_sound = lootbox_open_sound.s,
+                spin_sound =  lootbox_spin_sound.s,
+                jackpot_sound = jackpot_sound.s
+
+            )
+            current_lootbox.animation_time = pygame.time.get_ticks()
+
+        #rysowanko
+        if current_lootbox:
+            current_lootbox.update()
+            current_lootbox.draw(main_screen)
+            #przycisk Otwórz kszynke kiedy lootbox sienie kreci
+            open_case_button = Button(
+                main_screen, main_screen.get_width()//2 -100, 700 ,200,60,
+                "Otwórz kszynke", (255, 190, 0), (255, 190, 0), button_click_sound
+            )
+            open_case_button.active = (current_lootbox is None or (not current_lootbox.is_spinning and not current_lootbox.is_open))
+            open_case_button.draw(main_screen)
+
+        #obsługa przycisku
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and open_case_button.handle_event(event):
+                current_lootbox.open()
+                lootbox_active = True
+                current_lootbox.animation_time = pygame.time.get_ticks()
+
+        #resecik
+        if lootbox_active and not current_lootbox.is_spinning:
+            if pygame.time.get_ticks() - current_lootbox.animation_time > 5000:  # 5 sekund
+                lootbox_active = False
+                current_lootbox = None
 
 
     pygame.display.flip() #odswiezenie ekranu

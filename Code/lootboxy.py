@@ -3,6 +3,7 @@ import random
 import sys
 import time
 from enum import Enum
+
 pygame.init()
 
 '''
@@ -24,7 +25,7 @@ class Lootbox():
         self.height = 200
         self.is_open = False
         self.is_spinning = False
-        self.spin_speed = 1.5
+        self.spin_speed = 0.05
         self.selected_reward = None
         self.spin_progress = 0
         self.rarity = self.determinate_rarity()
@@ -32,6 +33,9 @@ class Lootbox():
         self.reward = self.load_rewards()
         self.current_texture = None
         self.open_sound = None
+        self.animation_time = 0
+        self.last_sound_time = 0
+        self.czy_jackpot = 0
 
 
     def determinate_rarity(self) -> Rarity:
@@ -40,6 +44,7 @@ class Lootbox():
         elif roll < 0.1: return Rarity.EPIC
         elif roll < 0.3: return Rarity.RARE
         else : return Rarity.COMMON
+        #return Rarity.LEGENDARY
 
 
 #Określenie jaki skin jest jak rzadki
@@ -68,9 +73,10 @@ class Lootbox():
                 {"name": "skin13", "texture": pygame.image.load("../Graphics/rewers13.jpg")},
             ]
         }
-    def load_sounds(self, open_sound : pygame.mixer.Sound, spin_sound : pygame.mixer.Sound) -> None:
+    def load_sounds(self, open_sound : pygame.mixer.Sound, spin_sound : pygame.mixer.Sound, jackpot_sound : pygame.mixer.Sound) -> None:
         self.open_sound = open_sound
         self.spin_sound = spin_sound
+        self.jackpot_sound = jackpot_sound
 
     def open(self):
         if not self.is_open and not self.is_spinning:
@@ -86,17 +92,54 @@ class Lootbox():
 
 
     def update(self):
+        current_time = pygame.time.get_ticks()
         if self.is_spinning:
             self.spin_progress = self.spin_progress + self.spin_speed
+            #dodanie animacji spinowania
+            if int(self.spin_progress) % 5 ==0:
+                all_rewards = []
+                for rarity in self.reward.values():
+                    all_rewards.extend(rarity)
+                random_reward = random.choice(all_rewards)
+                self.current_texture = random_reward["texture"]
             if self.spin_progress >= 100:
                 self.is_spinning = False
                 self.is_open = True
                 self.select_reward()
-            elif self.spin_sound and int(self.spin_progress) % 10 ==0:
+                self.animation_time = pygame.time.get_ticks()
+            if self.spin_sound and current_time - self.last_sound_time > 300: #naprawiono nakładajacy sie dzwiek spinow
                 self.spin_sound.play()
+                self.last_sound_time = current_time
+
+    def draw(self, screen : pygame.Surface):
+        #kszynka
+        pygame.draw.rect(screen, (50, 50, 50), (self.x, self.y, self.width, self.height))
+        #rysowanko tektury
+        if self.current_texture:
+            texture = pygame.transform.scale(self.current_texture, (self.width -20, self.height-20))
+            screen.blit(texture, (self.x +10, self.y +10))
+        #otwarcie
+        if self.is_open and self.selected_reward:
+            self.draw_reward_info(screen)
+
+    def draw_reward_info(self, screen : pygame.Surface):
+        font = pygame.font.SysFont("Arial", 24, bold=True)
+
+        #kolor tekstu
+        color = {
+            Rarity.COMMON : (100, 100, 100),    #szary
+            Rarity.RARE : (0, 100, 255),        #niebieski
+            Rarity.EPIC : (150, 0, 255),        #fioletowy
+            Rarity.LEGENDARY : (255, 165, 0 ),  #złoty
+
+        }.get(self.rarity, (255,255,255))
+        if self.rarity.value == "legendary" and self.czy_jackpot == 0:
+            self.jackpot_sound.play()
+            self.czy_jackpot = 1
 
 
-
+        text = font.render(f"{self.selected_reward["name"]} ({self.rarity.name})", True, color)
+        screen.blit(text, (self.x, self.y -25))
 
     pass
 
