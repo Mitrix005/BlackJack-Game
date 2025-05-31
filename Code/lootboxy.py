@@ -41,16 +41,36 @@ class Lootbox():
         elif roll < 0.3: return Rarity.RARE
         else : return Rarity.COMMON
 
+
+#Określenie jaki skin jest jak rzadki
+
     def load_rewards(self) -> dict:
         return{
             Rarity.COMMON : [
-                {"name" : "czarmuch", "texture" : pygame.image.load("../Graphics/rewers2.png")}
-            ]
+                {"name" : "skin1", "texture" : pygame.image.load("../Graphics/rewers1.jpg")},
+                {"name": "skin6", "texture": pygame.image.load("../Graphics/rewers6.jpg")},
+                {"name": "skin7", "texture": pygame.image.load("../Graphics/rewers7.jpg")},
+                {"name": "skin8", "texture": pygame.image.load("../Graphics/rewers8.jpg")},
+                {"name": "skin9", "texture": pygame.image.load("../Graphics/rewers9.jpg")},
+                {"name": "skin10", "texture": pygame.image.load("../Graphics/rewers10.jpg")},
+
+            ],
             Rarity.RARE : [
-                {"name" : "garnuch", "texture" : pygame.image.load("../Graphics/")}
+                {"name" : "skin2", "texture" : pygame.image.load("../Graphics/rewers2.jpg")},
+                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers11.jpg")},
+            ],
+            Rarity.EPIC : [
+                {"name" : "skin4", "texture" : pygame.image.load("../Graphics/rewers4.jpg")},
+                {"name": "skin12", "texture": pygame.image.load("../Graphics/rewers12.jpg")},
+            ],
+            Rarity.LEGENDARY : [
+                {"name": "skin5", "texture": pygame.image.load("../Graphics/rewers5.jpg")},
+                {"name": "skin13", "texture": pygame.image.load("../Graphics/rewers13.jpg")},
             ]
         }
-
+    def load_sounds(self, open_sound : pygame.mixer.Sound, spin_sound : pygame.mixer.Sound) -> None:
+        self.open_sound = open_sound
+        self.spin_sound = spin_sound
 
 
     pass
