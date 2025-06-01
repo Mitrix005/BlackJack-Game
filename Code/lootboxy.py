@@ -106,7 +106,7 @@ class Lootbox():
                 self.current_texture = random_reward["texture"]
                 if int(self.spin_progress) <96:
                     self.spin_sound.play()
-                self.spin_speed -=0.02
+                self.spin_speed -=0.023
             if self.spin_progress >= 100:
                 self.is_spinning = False
                 self.is_open = True
