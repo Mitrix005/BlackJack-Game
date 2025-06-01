@@ -215,7 +215,7 @@ class Game_Logic:
             self.result = "You win"
         elif player > dealer:
             self.result = "You win"
-        elif dealer = player:
+        elif dealer == player:
             self.result = "Draw"
         else:
             self.result = "Dealer wins"
