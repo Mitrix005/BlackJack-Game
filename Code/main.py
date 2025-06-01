@@ -280,6 +280,16 @@ inventory_background=image_manager.load("inventory_bg.jpg")
 logo=image_manager.load("logo.jpg")
 table=image_manager.load("stol.jpg")
 
+#wczyanie skinów do kart
+skin_1=image_manager.load("rewers1.jpg")
+skin_2=image_manager.load("rewers2.jpg")
+
+#parametry skinów
+width_current = 120
+height_current = 184
+width_standard = 90
+height_standard = 138
+
 # backgrounds
 main_menu_background=toggle_fullscreen(fullscreen,main_menu_background,"menu_background.jpg")
 inventory_background=toggle_fullscreen(fullscreen,inventory_background,"inventory_bg.jpg")
@@ -346,6 +356,10 @@ while running:
             music_manager.play_game()
 
         main_screen.blit(inventory_background, (0, 0))
+        main_screen.blit(pygame.transform.scale(skin_1, (width_current, height_current)), (200, 100))
+        main_screen.blit(pygame.transform.scale(skin_2, (width_standard, height_standard)), (400, 150))
+        main_screen.blit(pygame.transform.scale(skin_2, (width_standard, height_standard)), (600, 150))
+        main_screen.blit(pygame.transform.scale(skin_2, (width_standard, height_standard)), (800, 150))
 
         back_to_menu.draw(main_screen)
 
