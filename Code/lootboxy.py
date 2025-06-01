@@ -29,7 +29,6 @@ class Lootbox():
         self.selected_reward = None
         self.spin_progress = 0
         self.rarity = self.determinate_rarity()
-        self.color = self.rarity.value
         self.reward = self.load_rewards()
         self.current_texture = None
         self.open_sound = None
