@@ -102,13 +102,14 @@ class Lootbox():
                     all_rewards.extend(rarity)
                 random_reward = random.choice(all_rewards)
                 self.current_texture = random_reward["texture"]
+                self.spin_sound.play()
             if self.spin_progress >= 100:
                 self.is_spinning = False
                 self.is_open = True
                 self.select_reward()
                 self.animation_time = pygame.time.get_ticks()
             if self.spin_sound and current_time - self.last_sound_time > 300: #naprawiono nakładajacy sie dzwiek spinow
-                self.spin_sound.play()
+                #self.spin_sound.play()
                 self.last_sound_time = current_time
         elif self.spin_progress <= 100:
             self.current_texture = self.textura_skrzynki
