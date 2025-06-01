@@ -22,7 +22,7 @@ class Lootbox():
         self.x = x
         self.y = y
         self.width = 200
-        self.height = 200
+        self.height = 355
         self.is_open = False
         self.is_spinning = False
         self.spin_speed = 0.05

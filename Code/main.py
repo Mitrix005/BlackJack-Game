@@ -426,7 +426,7 @@ while running:
         if current_lootbox is None:
             current_lootbox = Lootbox(
                 x = main_screen.get_width()//2 -100,
-                y = main_screen.get_height()//2 -100,
+                y = main_screen.get_height()//2 -250,
 
 
             )
@@ -444,7 +444,7 @@ while running:
             current_lootbox.draw(main_screen)
             #przycisk Otwórz kszynke kiedy lootbox sienie kreci
             open_case_button = Button(
-                main_screen, main_screen.get_width()//2 -100, 700 ,200,60,
+                main_screen, main_screen.get_width()//2 -100, 800 ,200,60,
                 "Otwórz kszynke", (255, 190, 0), (255, 190, 0), button_click_sound
             )
             open_case_button.active = (current_lootbox is None or (not current_lootbox.is_spinning and not current_lootbox.is_open))
