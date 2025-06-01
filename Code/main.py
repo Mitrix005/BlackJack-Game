@@ -195,6 +195,31 @@ class Game_Logic:
             aces -= 1
         return score
 
+    def hit(self): #dobranie karty przez garcza
+        if not self.player_standing and self.result == "":
+            self.player_hand.append(self.deck.pop())
+            if self.hand_value(self.player_hand) > 21:
+                self.result = "Bust! Dealer wins."
+
+    def stand(self): #gracz przestaje dobierać karty
+        if not self.player_standing and self.result == "":
+            self.player_standing = True
+            while self.hand_value(self.dealer_hand) < 17:
+                self.dealer_hand.append(self.deck.pop())
+            self.winner()
+
+    def winner(self): # wybór zwycięzcy
+        player = self.hand_value(self.player_hand)
+        dealer = self.hand_value(self.dealer_hand)
+        if dealer > 21:
+            self.result = "You win"
+        elif player > dealer:
+            self.result = "You win"
+        elif dealer = player:
+            self.result = "Draw"
+        else:
+            self.result = "Dealer wins"
+
     # zainicjowanie gry
 pygame.init()
 
