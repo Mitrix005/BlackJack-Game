@@ -34,7 +34,7 @@ class Lootbox():
         self.open_sound = None
         self.animation_time = 0
         self.last_sound_time = 0
-        self.czy_jackpot = 0
+        self.czy_dzwiek = 0
         self.textura_skrzynki = pygame.image.load("../Graphics/paka.jpg")
 
 
@@ -73,10 +73,12 @@ class Lootbox():
                 {"name": "skin13", "texture": pygame.image.load("../Graphics/rewers13.jpg")},
             ]
         }
-    def load_sounds(self, open_sound : pygame.mixer.Sound, spin_sound : pygame.mixer.Sound, jackpot_sound : pygame.mixer.Sound) -> None:
+    def load_sounds(self, open_sound : pygame.mixer.Sound, spin_sound : pygame.mixer.Sound, jackpot_sound : pygame.mixer.Sound, case_opened : pygame.mixer.Sound) -> None:
         self.open_sound = open_sound
         self.spin_sound = spin_sound
         self.jackpot_sound = jackpot_sound
+        self.case_opened =  case_opened
+
 
     def open(self):
         if not self.is_open and not self.is_spinning:
@@ -102,7 +104,7 @@ class Lootbox():
                     all_rewards.extend(rarity)
                 random_reward = random.choice(all_rewards)
                 self.current_texture = random_reward["texture"]
-                self.spin_sound.play()
+                if int(self.spin_progress) <98: self.spin_sound.play()
                 self.spin_speed -=0.00005
             if self.spin_progress >= 100:
                 self.is_spinning = False
@@ -137,9 +139,12 @@ class Lootbox():
             Rarity.LEGENDARY : (255, 165, 0 ),  #złoty
 
         }.get(self.rarity, (255,255,255))
-        if self.rarity.value == "legendary" and self.czy_jackpot == 0:
+        if self.rarity.value == "legendary" and self.czy_dzwiek == 0:
             self.jackpot_sound.play()
-            self.czy_jackpot = 1
+            self.czy_dzwiek = 1
+        elif self.czy_dzwiek == 0:
+            self.case_opened.play()
+            self.czy_dzwiek =1
 
 
         text = font.render(f"{self.selected_reward["name"]} ({self.rarity.name})", True, color)

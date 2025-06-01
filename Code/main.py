@@ -262,6 +262,9 @@ lootbox_spin_sound = Sound("../Audio/case_spin2.wav")
 lootbox_spin_sound.s.set_volume(0.5)
 button_click_sound = Sound('../Audio/rozdanie_karty.mp3')
 button_click_sound.s.set_volume(0.5)
+lootbox_opened_sound = Sound("../Audio/case_opened3.wav")
+lootbox_opened_sound.s.set_volume(1)
+
 
 # przyciski
 
@@ -433,7 +436,8 @@ while running:
             current_lootbox.load_sounds(
                 open_sound = lootbox_open_sound.s,
                 spin_sound =  lootbox_spin_sound.s,
-                jackpot_sound = jackpot_sound.s
+                jackpot_sound = jackpot_sound.s,
+                case_opened = lootbox_opened_sound.s
 
             )
             current_lootbox.animation_time = pygame.time.get_ticks()
@@ -461,7 +465,7 @@ while running:
 
         #resecik
         if lootbox_active and not current_lootbox.is_spinning:
-            if pygame.time.get_ticks() - current_lootbox.animation_time > 5000:  # 5 sekund
+            if pygame.time.get_ticks() - current_lootbox.animation_time > 2000:  # 5 sekund
                 lootbox_active = False
                 current_lootbox = None
 
