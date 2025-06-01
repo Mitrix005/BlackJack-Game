@@ -35,6 +35,7 @@ class Lootbox():
         self.animation_time = 0
         self.last_sound_time = 0
         self.czy_jackpot = 0
+        self.textura_skrzynki = pygame.image.load("../Graphics/paka.jpg")
 
 
     def determinate_rarity(self) -> Rarity:
@@ -109,6 +110,8 @@ class Lootbox():
             if self.spin_sound and current_time - self.last_sound_time > 300: #naprawiono nakładajacy sie dzwiek spinow
                 self.spin_sound.play()
                 self.last_sound_time = current_time
+        elif self.spin_progress <= 100:
+            self.current_texture = self.textura_skrzynki
 
     def draw(self, screen : pygame.Surface):
         #kszynka
@@ -126,7 +129,7 @@ class Lootbox():
 
         #kolor tekstu
         color = {
-            Rarity.COMMON : (100, 100, 100),    #szary
+            Rarity.COMMON : (255, 255, 255),    #murzynski
             Rarity.RARE : (0, 100, 255),        #niebieski
             Rarity.EPIC : (150, 0, 255),        #fioletowy
             Rarity.LEGENDARY : (255, 165, 0 ),  #złoty

@@ -445,7 +445,7 @@ while running:
             #przycisk Otwórz kszynke kiedy lootbox sienie kreci
             open_case_button = Button(
                 main_screen, main_screen.get_width()//2 -100, 750 ,200,60,
-                "Otwórz kszynke", (255, 190, 0), (255, 190, 0), button_click_sound
+                "Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound
             )
             open_case_button.active = (current_lootbox is None or (not current_lootbox.is_spinning and not current_lootbox.is_open))
             open_case_button.draw(main_screen)
