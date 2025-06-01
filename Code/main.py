@@ -290,6 +290,8 @@ deal_button = Button(main_screen, 636,700,200, 60,"Deal", (40,40,40),(32,32,32),
 
 buttons = [play_button, gamble_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button]
 
+open_case_button = Button(main_screen, main_screen.get_width() // 2 - 100, 750, 200, 60,"Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound)
+
 
 # Zmienne Gry
 music_manager = MusicManager()
@@ -314,7 +316,11 @@ pygame.display.set_icon(logo)
 
 state = "MENU" # stan gry
 running = True # czy gra dziala
+
+clock = pygame.time.Clock()
+FPS = 60
 while running:
+
 
     for event in pygame.event.get():                            #petla zdarzen
         if event.type == pygame.QUIT:
@@ -334,6 +340,11 @@ while running:
                 state = "MENU"
                 current_lootbox = None
                 lootbox_active = False
+            if open_case_button.handle_event(event):
+                current_lootbox.open()
+                lootbox_active = True
+                current_lootbox.animation_time = pygame.time.get_ticks()
+
 
         if state == "GAME":                                     # wszystkie zdarzenia w game
             if back_to_menu.handle_event(event):
@@ -447,10 +458,12 @@ while running:
             current_lootbox.update()
             current_lootbox.draw(main_screen)
             #przycisk Otwórz kszynke kiedy lootbox sienie kreci
+            '''
             open_case_button = Button(
                 main_screen, main_screen.get_width()//2 -100, 750 ,200,60,
                 "Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound
             )
+            '''
             open_case_button.active = (current_lootbox is None or (not current_lootbox.is_spinning and not current_lootbox.is_open))
             open_case_button.draw(main_screen)
 
@@ -471,4 +484,5 @@ while running:
 
 
     pygame.display.flip() #odswiezenie ekranu
+    clock.tick(FPS)
 pygame.quit() #wyjscie z gry

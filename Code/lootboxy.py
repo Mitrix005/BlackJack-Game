@@ -25,7 +25,7 @@ class Lootbox():
         self.height = 355
         self.is_open = False
         self.is_spinning = False
-        self.spin_speed = 0.05
+        self.spin_speed = 1
         self.selected_reward = None
         self.spin_progress = 0
         self.rarity = self.determinate_rarity()
@@ -104,9 +104,9 @@ class Lootbox():
                     all_rewards.extend(rarity)
                 random_reward = random.choice(all_rewards)
                 self.current_texture = random_reward["texture"]
-                if int(self.spin_progress) <98:
+                if int(self.spin_progress) <96:
                     self.spin_sound.play()
-                self.spin_speed -=0.00005
+                self.spin_speed -=0.02
             if self.spin_progress >= 100:
                 self.is_spinning = False
                 self.is_open = True
