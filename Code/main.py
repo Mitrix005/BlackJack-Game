@@ -244,9 +244,11 @@ button_click_sound.s.set_volume(0.5)
 
 # przyciski
 
-play_button = Button(main_screen,636,400,200, 60,"Play", (40,40,40),(32,32,32), button_click_sound)
+play_button = Button(main_screen,636,300,200, 60,"Play", (40,40,40),(32,32,32), button_click_sound)
 
-gamble_button = Button(main_screen, 636, 500, 200, 60, "$ Gamble $", (255,215,0), (255,190,0), button_click_sound)
+gamble_button = Button(main_screen, 636, 400, 200, 60, "$ Gamble $", (255,215,0), (255,190,0), button_click_sound)
+
+inventory_button = Button(main_screen,636,500,200, 60,"Inventory", (40,40,40),(32,32,32), button_click_sound)
 
 quit_button = Button(main_screen, 636, 700, 200, 60, "Quit", (40,40,40), (32,32,32), button_click_sound)
 
@@ -264,7 +266,7 @@ stand_button = Button(main_screen, 636,500,200, 60,"Stand", (40,40,40),(32,32,32
 
 deal_button = Button(main_screen, 636,700,200, 60,"Deal", (40,40,40),(32,32,32), button_click_sound)
 
-buttons = [play_button, gamble_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button]
+buttons = [play_button, gamble_button, inventory_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button]
 
 
 # Zmienne Gry
@@ -274,11 +276,13 @@ image_manager = ImageManager('../Graphics')
 
 # wczytanie obrazow
 main_menu_background=image_manager.load("menu_background.jpg")
+inventory_background=image_manager.load("inventory_bg.jpg")
 logo=image_manager.load("logo.jpg")
 table=image_manager.load("stol.jpg")
 
 # backgrounds
 main_menu_background=toggle_fullscreen(fullscreen,main_menu_background,"menu_background.jpg")
+inventory_background=toggle_fullscreen(fullscreen,inventory_background,"inventory_bg.jpg")
 table=toggle_fullscreen(fullscreen,table,"stol.jpg")
 
 # glosnosc glownej muzyki
@@ -303,6 +307,12 @@ while running:
                 state = "OPTIONS"
             if quit_button.handle_event(event):
                 running = False
+            if inventory_button.handle_event(event):
+                state = "INVENTORY"
+        if state == "INVENTORY":
+            if back_to_menu.handle_event(event):
+                state = "MENU"
+
         if state == "GAME":                                     # wszystkie zdarzenia w game
             if back_to_menu.handle_event(event):
                 state = "MENU"
@@ -320,8 +330,24 @@ while running:
                     config.write(configfile)
 
                 main_menu_background=toggle_fullscreen(fullscreen,main_menu_background,"menu_background.jpg")
+                inventory_background=toggle_fullscreen(fullscreen,inventory_background,"inventory_bg.jpg")
                 table=toggle_fullscreen(fullscreen,table,"stol.jpg")
 
+    if state == "INVENTORY":
+        play_button.active = False
+        gamble_button.active = False
+        options_button.active = False
+        quit_button.active = False
+        back_to_menu.active = True
+        fullscreen_button.active = False
+        fullscreen_button_info.active = False
+
+        if music_manager.state != "GAME":
+            music_manager.play_game()
+
+        main_screen.blit(inventory_background, (0, 0))
+
+        back_to_menu.draw(main_screen)
 
     if state == "MENU":                                                 #zarzadzanie muzyka i rysowaniem obiektow
         if music_manager.state != "MENU":
@@ -330,6 +356,7 @@ while running:
         back_to_menu.active = False
         play_button.active = True
         gamble_button.active = True
+        inventory_button.active = True
         options_button.active = True
         quit_button.active = True
         fullscreen_button.active = False
@@ -339,6 +366,7 @@ while running:
 
         play_button.draw(main_screen)
         options_button.draw(main_screen)
+        inventory_button.draw(main_screen)
         gamble_button.draw(main_screen)
         quit_button.draw(main_screen)
 
