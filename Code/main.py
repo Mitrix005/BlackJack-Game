@@ -1,6 +1,7 @@
 import pygame
 import os
 import configparser
+import random
 
 from pygame import SurfaceType      # potrzebne do adnotacji
 from pygame.mixer import Sound      # potrzebne do adnotacji
@@ -159,11 +160,67 @@ class ImageManager:
             self.scaled_cache[(filename,size)] = picture
         return self.scaled_cache[(filename, size)]
 
+#klasa implementująca logikę gry
+class Game_Logic:
+    def __init__(self): #początkowy stan przed rozpoczęciem gry
+        self.reset()
 
+    def reset(self) -> None:
+        self.deck = [value + suit for value in '23456789TJQKA' for suit in '♠♥♦♣']
+        random.shuffle(self.deck)
+        self.player_hand=[]
+        self.dealer_hand=[]
+        self.player_standing = False
+        self.result = ""
+        self.deal_initial_cards()
 
+    def deal_initial_cards(self) -> None:  #dobranie kart na początku
+        self.player_hand = [self.deck.pop(), self.deck.pop()]
+        self.dealer_hand = [self.deck.pop(), self.deck.pop()]
 
+    def hand_value(self, hand):  #liczenie wartości ręki gracza
+        score = 0
+        aces = 0
+        for card in hand:
+            rank = card[0]
+            if rank in 'TJQK':
+                score += 10
+            elif rank == 'A':
+                aces += 1
+                score += 11
+            else:
+                score += int(rank)
+        while score > 21 and aces:
+            value -= 10
+            aces -= 1
+        return score
 
-# zainicjowanie gry
+    def hit(self): #dobranie karty przez garcza
+        if not self.player_standing and self.result == "":
+            self.player_hand.append(self.deck.pop())
+            if self.hand_value(self.player_hand) > 21:
+                self.result = "Bust! Dealer wins."
+
+    def stand(self): #gracz przestaje dobierać karty
+        if not self.player_standing and self.result == "":
+            self.player_standing = True
+            while self.hand_value(self.dealer_hand) < 17:
+                self.dealer_hand.append(self.deck.pop())
+            self.winner()
+
+    def winner(self): # wybór zwycięzcy
+        player = self.hand_value(self.player_hand)
+        dealer = self.hand_value(self.dealer_hand)
+        if dealer > 21:
+            self.result = "You win"
+        elif player > dealer:
+            self.result = "You win"
+        elif dealer == player:
+            self.result = "Draw"
+        else:
+            self.result = "Dealer wins"
+
+    # zainicjowanie gry
 pygame.init()
 
 # domyslny rozmiar okna
@@ -201,7 +258,14 @@ fullscreen_button_info = Button(main_screen,300, 300, 200, 60, "Fullscreen", (40
 
 fullscreen_button= Button(main_screen, 600, 300, 200, 60, "", (40,40,40), (32,32,32), button_click_sound)
 
-buttons = [play_button, gamble_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button]
+hit_button = Button(main_screen, 636,400,200, 60,"Hit", (40,40,40),(32,32,32), button_click_sound)
+
+stand_button = Button(main_screen, 636,500,200, 60,"Stand", (40,40,40),(32,32,32), button_click_sound)
+
+deal_button = Button(main_screen, 636,700,200, 60,"Deal", (40,40,40),(32,32,32), button_click_sound)
+
+buttons = [play_button, gamble_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button]
+
 
 # Zmienne Gry
 music_manager = MusicManager()
