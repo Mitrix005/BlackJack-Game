@@ -104,7 +104,8 @@ class Lootbox():
                     all_rewards.extend(rarity)
                 random_reward = random.choice(all_rewards)
                 self.current_texture = random_reward["texture"]
-                if int(self.spin_progress) <98: self.spin_sound.play()
+                if int(self.spin_progress) <98:
+                    self.spin_sound.play()
                 self.spin_speed -=0.00005
             if self.spin_progress >= 100:
                 self.is_spinning = False
