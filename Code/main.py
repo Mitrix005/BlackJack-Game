@@ -178,7 +178,7 @@ class Game_Logic:
         self.player_hand = [self.deck.pop(), self.deck.pop()]
         self.dealer_hand = [self.deck.pop(), self.deck.pop()]
 
-    def hand_value(self, hand):  #liczenie wartości ręki gracza
+    def hand_value(self, hand) ->int:  #liczenie wartości ręki gracza
         score = 0
         aces = 0
         for card in hand:
@@ -191,7 +191,7 @@ class Game_Logic:
             else:
                 score += int(rank)
         while score > 21 and aces:
-            value -= 10
+            score -= 10
             aces -= 1
         return score
 
@@ -215,7 +215,7 @@ class Game_Logic:
             self.result = "You win"
         elif player > dealer:
             self.result = "You win"
-        elif dealer = player:
+        elif dealer == player:
             self.result = "Draw"
         else:
             self.result = "Dealer wins"
