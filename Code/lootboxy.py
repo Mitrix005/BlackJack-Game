@@ -40,10 +40,10 @@ class Lootbox():
 
     def determinate_rarity(self) -> Rarity:
         roll = random.random()
-        if roll < 0.01: return Rarity.LEGENDARY
-        elif roll < 0.1: return Rarity.EPIC
-        elif roll < 0.3: return Rarity.RARE
-        else : return Rarity.COMMON
+        if roll < 0.01: return Rarity.LEGENDARY                     #1% na legendary
+        elif roll < 0.1: return Rarity.EPIC                         #9% na epic
+        elif roll < 0.3: return Rarity.RARE                         #20% na rare
+        else : return Rarity.COMMON                                 #70% na epica
         #return Rarity.LEGENDARY
 
 
