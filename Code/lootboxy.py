@@ -62,7 +62,11 @@ class Lootbox():
             ],
             Rarity.RARE : [
                 {"name" : "skin2", "texture" : pygame.image.load("../Graphics/rewers2.jpg")},
-                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers11.jpg")},
+                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers14.jpg")},
+                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers15.jpg")},
+                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers16.jpg")},
+                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers17.jpg")},
+                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers13.jpg")},
             ],
             Rarity.EPIC : [
                 {"name" : "skin4", "texture" : pygame.image.load("../Graphics/rewers4.jpg")},
