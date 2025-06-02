@@ -30,6 +30,12 @@ def toggle_fullscreen(info : bool, background : SurfaceType = None,  filename : 
             background = image_manager.scaled(filename,(1472,832))
             return background
 
+#funkcja do wczytania pliku tekstowego z instrukcja
+def load_instructions(path="instrukcja_dla_gracza.txt"):
+    if os.path.isfile(path):
+        with open(path, "r", encoding="utf-8") as file:
+            return file.readlines()
+    return ["Brak instrukcji"]
 
 # plik konfiguracyjny
 config = configparser.ConfigParser()
@@ -195,7 +201,7 @@ class Game_Logic:
         self.player_hand = [self.deck.pop(), self.deck.pop()]
         self.dealer_hand = [self.deck.pop(), self.deck.pop()]
 
-    def hand_value(self, hand):  #liczenie wartości ręki gracza
+    def hand_value(self, hand) ->int:  #liczenie wartości ręki gracza
         score = 0
         aces = 0
         for card in hand:
@@ -208,7 +214,7 @@ class Game_Logic:
             else:
                 score += int(rank)
         while score > 21 and aces:
-            value -= 10
+            score -= 10
             aces -= 1
         return score
 
@@ -272,11 +278,13 @@ play_button = Button(main_screen,636,400,200, 60,"Play", (40,40,40),(32,32,32), 
 
 gamble_button = Button(main_screen, 636, 500, 200, 60, "$ Gamble $", (255,215,0), (255,190,0), button_click_sound)
 
-quit_button = Button(main_screen, 636, 700, 200, 60, "Quit", (40,40,40), (32,32,32), button_click_sound)
+quit_button = Button(main_screen, 636, 800, 200, 60, "Quit", (40,40,40), (32,32,32), button_click_sound)
 
 back_to_menu = Button(main_screen,1100, 650, 200, 60, "Back", (40,40,40),(32,32,32), button_click_sound)
 
 options_button = Button(main_screen,  636,600, 200, 60, "Options", (40,40,40), (32,32,32), button_click_sound)
+
+instruction_button = Button(main_screen, 636, 700, 200, 60, "Instruction", (40,40,40), (32,32,32), button_click_sound)
 
 fullscreen_button_info = Button(main_screen,300, 300, 200, 60, "Fullscreen", (40,40,40), (40,40,40))
 
@@ -288,10 +296,14 @@ stand_button = Button(main_screen, 636,500,200, 60,"Stand", (40,40,40),(32,32,32
 
 deal_button = Button(main_screen, 636,700,200, 60,"Deal", (40,40,40),(32,32,32), button_click_sound)
 
-buttons = [play_button, gamble_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button]
-
 open_case_button = Button(main_screen, main_screen.get_width() // 2 - 100, 750, 200, 60,"Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound)
 
+buttons = [play_button, gamble_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button, instruction_button, open_case_button]
+
+
+
+# wczytanie pliku tekstowego z instrukcja
+instructions_text = load_instructions()
 
 # Zmienne Gry
 music_manager = MusicManager()
@@ -333,6 +345,8 @@ while running:
                 state = "GAMBLE"
             if options_button.handle_event(event):
                 state = "OPTIONS"
+            if instruction_button.handle_event(event):
+                state = "INSTRUCTION"
             if quit_button.handle_event(event):
                 running = False
         if state == "GAMBLE":
@@ -346,6 +360,9 @@ while running:
                 current_lootbox.animation_time = pygame.time.get_ticks()
 
 
+        if state == "INSTRUCTION":
+            if back_to_menu.handle_event(event):
+                state="MENU"
         if state == "GAME":                                     # wszystkie zdarzenia w game
             if back_to_menu.handle_event(event):
                 state = "MENU"
@@ -354,7 +371,6 @@ while running:
                 state="MENU"
             if fullscreen_button.handle_event(event):
                 fullscreen = not fullscreen
-
                 if fullscreen:
                     config.set('Display', 'fullscreen', 'True')
                 else:
@@ -379,6 +395,7 @@ while running:
         quit_button.active = True
         fullscreen_button.active = False
         fullscreen_button_info.active = False
+        instruction_button.active = True
 
         main_screen.blit(main_menu_background, (0, 0))
 
@@ -386,6 +403,7 @@ while running:
         options_button.draw(main_screen)
         gamble_button.draw(main_screen)
         quit_button.draw(main_screen)
+        instruction_button.draw(main_screen)
 
     if state == "GAME":
         play_button.active = False
@@ -395,6 +413,7 @@ while running:
         back_to_menu.active = True
         fullscreen_button.active = False
         fullscreen_button_info.active = False
+        instruction_button.active = False
 
         if music_manager.state != "GAME":
             music_manager.play_game()
@@ -411,6 +430,7 @@ while running:
         fullscreen_button.active = True
         fullscreen_button_info.active = True
         back_to_menu.active = True
+        instruction_button.active = False
 
         fullscreen_button.text = "Yes" if fullscreen else "No"
 
@@ -419,6 +439,25 @@ while running:
         fullscreen_button.draw(main_screen)
         fullscreen_button_info.draw(main_screen)
         back_to_menu.draw(main_screen)
+
+    if state == "INSTRUCTION" :
+        play_button.active = False
+        gamble_button.active = False
+        options_button.active = False
+        quit_button.active = False
+        fullscreen_button.active = True
+        fullscreen_button_info.active = True
+        back_to_menu.active = True
+
+        main_screen.blit(main_menu_background, (0, 0))
+        back_to_menu.draw(main_screen)
+
+        font = pygame.font.SysFont(None, 25)
+        y=50
+        for line in instructions_text:
+            text_surface=font.render(line.strip(), True, (255, 255, 255))
+            main_screen.blit(text_surface, (100, y))
+            y+=20
 
 
     if state == "GAMBLE":
