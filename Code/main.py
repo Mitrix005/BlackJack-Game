@@ -449,8 +449,7 @@ while running:
             y = margin_y + row * line_height
 
             text_surface=font.render(line.strip(), True, (255, 255, 255))
-            main_screen.blit(text_surface, (100, y))
-            y+=20
+            main_screen.blit(text_surface, (x, y))
 
 
     pygame.display.flip() #odswiezenie ekranu
