@@ -185,28 +185,45 @@ class ImageManager:
 
 #klasa implementująca logikę gry
 class Game_Logic:
-    def __init__(self): #początkowy stan przed rozpoczęciem gry
-        self.reset()
 
-    def reset(self) -> None:
-        self.deck = [value + suit for value in '23456789TJQKA' for suit in '♠♥♦♣']
+
+    def __init__(self): #początkowy stan przed rozpoczęciem gry
+        self.deck = []
+        self.player_hand = []
+        self.dealer_hand = []
+        self.player_standing = False
+        self.result = ""
+
+    def reset(self):
+        self.deck = [value + suit for value in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+                         for suit in '♠♥♦♣']
         random.shuffle(self.deck)
-        self.player_hand=[]
-        self.dealer_hand=[]
+        self.player_hand = []
+        self.dealer_hand = []
         self.player_standing = False
         self.result = ""
         self.deal_initial_cards()
 
-    def deal_initial_cards(self) -> None:  #dobranie kart na początku
-        self.player_hand = [self.deck.pop(), self.deck.pop()]
-        self.dealer_hand = [self.deck.pop(), self.deck.pop()]
+    def reset_deck(self):
+        self.deck = [value + suit for value in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+                     for suit in '♠♥♦♣']
+        random.shuffle(self.deck)
 
-    def hand_value(self, hand) ->int:  #liczenie wartości ręki gracza
+
+    def deal_initial_cards(self):
+        if len(self.deck) >= 4:
+            self.player_hand = [self.deck.pop(), self.deck.pop()]
+            self.dealer_hand = [self.deck.pop(), self.deck.pop()]
+        else:
+            self.reset_deck()
+            self.deal_initial_cards()
+
+    def hand_value(self, hand) -> int:
         score = 0
         aces = 0
         for card in hand:
-            rank = card[0]
-            if rank in 'TJQK':
+            rank = card[:-1]
+            if rank in ['J', 'Q', 'K']:
                 score += 10
             elif rank == 'A':
                 aces += 1
@@ -219,10 +236,12 @@ class Game_Logic:
         return score
 
     def hit(self): #dobranie karty przez garcza
-        if not self.player_standing and self.result == "":
-            self.player_hand.append(self.deck.pop())
-            if self.hand_value(self.player_hand) > 21:
-                self.result = "Dealer wins."
+
+         if not self.player_standing and self.result == "":
+            if len(self.deck) > 0:
+                self.player_hand.append(self.deck.pop())
+                if self.hand_value(self.player_hand) > 21:
+                    self.result = "Dealer wins."
 
     def stand(self): #gracz przestaje dobierać karty
         if not self.player_standing and self.result == "":
@@ -242,7 +261,6 @@ class Game_Logic:
             self.result = "Draw"
         else:
             self.result = "Dealer wins"
-
     # zainicjowanie gry
 pygame.init()
 
@@ -365,15 +383,15 @@ while running:
             if back_to_menu.handle_event(event):
                 state="MENU"
         if state == "GAME":                                     # wszystkie zdarzenia w game
-            if state == "GAME":
-                if back_to_menu.handle_event(event):
-                    state = "MENU"
-                if hit_button.handle_event(event):
-                    game_logic.hit()
-                if stand_button.handle_event(event):
-                    game_logic.stand()
-                if deal_button.handle_event(event):
-                    game_logic.reset()
+            if back_to_menu.handle_event(event):
+                state = "MENU"
+            if hit_button.handle_event(event):
+                game_logic.hit()
+            if stand_button.handle_event(event):
+                game_logic.stand()
+            if deal_button.handle_event(event):
+                game_logic.reset()
+                game_logic.deal_initial_cards()
         if state == "OPTIONS":                                  # wszystkie zdarzenia w options
             if back_to_menu.handle_event(event):
                 state="MENU"
@@ -414,51 +432,56 @@ while running:
         instruction_button.draw(main_screen)
 
     if state == "GAME":
-        play_button.active = False
-        gamble_button.active = False
-        options_button.active = False
-        quit_button.active = False
-        fullscreen_button.active = False
-        fullscreen_button_info.active = False
-        instruction_button.active = False
-        hit_button.active = True
-        stand_button.active = True
-        deal_button.active = True
-        back_to_menu.active = True
+        if state == "GAME":
+            play_button.active = False
+            gamble_button.active = False
+            options_button.active = False
+            quit_button.active = False
+            fullscreen_button.active = False
+            fullscreen_button_info.active = False
+            instruction_button.active = False
+            hit_button.active = True
+            stand_button.active = True
+            deal_button.active = True
+            back_to_menu.active = True
 
-        if music_manager.state != "GAME":
-            music_manager.play_game()
+            if music_manager.state != "GAME":
+                music_manager.play_game()
 
-        main_screen.blit(table, (0, 0))
+            main_screen.blit(table, (0, 0))
 
-        back_to_menu.draw(main_screen)
-        hit_button.draw(main_screen)
-        stand_button.draw(main_screen)
-        deal_button.draw(main_screen)
+            back_to_menu.draw(main_screen)
+            hit_button.draw(main_screen)
+            stand_button.draw(main_screen)
+            deal_button.draw(main_screen)
 
-        # Wyświetl karty
-        font = pygame.font.SysFont(None, 40)
+            # Wyświetl karty
+            font = pygame.font.SysFont(None, 40)
 
-        # Karty gracza
-        y_offset = 100
-        x = 200
-        main_screen.blit(font.render("Player:", True, (255, 255, 255)), (x, y_offset))
-        for i, card in enumerate(game_logic.player_hand):
-            card_text = font.render(card, True, (255, 255, 255))
-            main_screen.blit(card_text, (x + i * 40, y_offset + 40))
 
-        # Karty krupiera
-        y_offset = 250
-        main_screen.blit(font.render("Dealer:", True, (255, 255, 255)), (x, y_offset))
-        for i, card in enumerate(game_logic.dealer_hand):
-            card_text = font.render(card, True, (255, 255, 255))
-            main_screen.blit(card_text, (x + i * 40, y_offset + 40))
 
-        # Wynik
-        if game_logic.result:
-            result_text = font.render(f"Result: {game_logic.result}", True, (255, 215, 0))
-            main_screen.blit(result_text, (x, 500))
+            y_offset = 100 #karty gracza
+            x = 200
+            main_screen.blit(font.render("Player:", True, (255, 255, 255)), (x, y_offset))
+            for i, card in enumerate(game_logic.player_hand):
+                card_text = font.render(card, True, (255, 255, 255))
+                main_screen.blit(card_text, (x + i * 40, y_offset + 40))
 
+
+            y_offset = 250  # Karty krupiera
+            main_screen.blit(font.render("Dealer:", True, (255, 255, 255)), (x, y_offset))
+            for i, card in enumerate(game_logic.dealer_hand):
+                if i == 0 or game_logic.result:
+                    display_card = card
+                else:
+                    display_card = "??"
+                card_text = font.render(display_card, True, (255, 255, 255))
+                main_screen.blit(card_text, (x + i * 40, y_offset + 40))
+
+            # Wynik
+            if game_logic.result:
+                result_text = font.render(f"Result: {game_logic.result}", True, (255, 215, 0))
+                main_screen.blit(result_text, (x, 500))
     if state == "OPTIONS":
         play_button.active = False
         gamble_button.active = False
