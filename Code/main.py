@@ -512,12 +512,51 @@ while running:
         main_screen.blit(main_menu_background, (0, 0))
         back_to_menu.draw(main_screen)
 
-        font = pygame.font.SysFont(None, 25)
-        y=50
-        for line in instructions_text:
+        #obliczam dostepne miejsce w oknie instrukcja
+        screen_width , screen_height = main_screen.get_size()
+        margin_x = 50
+        margin_y = 50
+        available_screen_w = screen_width - 2 * margin_x
+        available_screen_h = screen_height - 2 * margin_y
+
+        #funkcja dostosowywuja rozklad i rozmiar tekstu do okna
+        line_count = len(instructions_text)
+        max_font = 28
+        min_font = 14
+
+        font_size = max_font
+        found = False
+
+        while font_size >= min_font and found is False:
+
+            font = pygame.font.SysFont (None,font_size)
+            line_height = font_size + 6
+            max_lines_in_col = available_screen_h // line_height
+            col_count = (line_count + max_lines_in_col - 1)// max_lines_in_col
+
+            if col_count * (font.size("M")[0] * 40) < available_screen_w:
+                found = True
+            else:
+                font_size -=1
+
+        if not found:
+
+            font_size = min_font
+            font = pygame.font.SysFont (None, font_size)
+            line_height = font_size + 6
+            max_lines_in_col = available_screen_h // line_height
+            col_count = (line_count + max_lines_in_col -1) // max_lines_in_col
+
+        column_width = available_screen_w // col_count
+
+        for i, line in enumerate (instructions_text):
+            col = i // max_lines_in_col
+            row = i % max_lines_in_col
+            x = margin_x + col * column_width
+            y = margin_y + row * line_height
+
             text_surface=font.render(line.strip(), True, (255, 255, 255))
-            main_screen.blit(text_surface, (100, y))
-            y+=20
+            main_screen.blit(text_surface, (x, y))
 
 
     if state == "GAMBLE":
