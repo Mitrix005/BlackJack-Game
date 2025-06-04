@@ -152,7 +152,7 @@ class Lootbox():
             self.czy_dzwiek =1
 
 
-        text = font.render(f"{self.selected_reward["name"]} ({self.rarity.name})", True, color)
+        text = font.render(f"{self.selected_reward['name']} ({self.rarity.name})", True, color)
         screen.blit(text, (self.x, self.y -25))
 
     pass
