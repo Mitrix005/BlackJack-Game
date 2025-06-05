@@ -391,7 +391,6 @@ while running:
                 game_logic.stand()
             if deal_button.handle_event(event):
                 game_logic.reset()
-                game_logic.deal_initial_cards()
         if state == "OPTIONS":                                  # wszystkie zdarzenia w options
             if back_to_menu.handle_event(event):
                 state="MENU"
@@ -410,7 +409,7 @@ while running:
 
 
 
-    if state == "MENU":                                                 #zarzadzanie muzyka i rysowaniem obiektow
+    if state == "MENU":                                      #zarzadzanie muzyka i rysowaniem obiektow
         if music_manager.state != "MENU":
             music_manager.play_menu()
 
@@ -440,8 +439,8 @@ while running:
             fullscreen_button.active = False
             fullscreen_button_info.active = False
             instruction_button.active = False
-            hit_button.active = True
-            stand_button.active = True
+            hit_button.active = len(game_logic.player_hand) > 0 and not game_logic.player_standing and game_logic.result == ""
+            stand_button.active = len(game_logic.player_hand) > 0 and not game_logic.player_standing and game_logic.result == ""
             deal_button.active = True
             back_to_menu.active = True
 
@@ -456,31 +455,36 @@ while running:
             deal_button.draw(main_screen)
 
             # Wyświetl karty
-            font = pygame.font.SysFont(None, 40)
+            card_font = pygame.font.SysFont("Arial", 48)
+            result_font = pygame.font.SysFont("Arial", 36)
 
-
-
-            y_offset = 100 #karty gracza
+            # Karty gracza
+            y_offset = 100
             x = 200
-            main_screen.blit(font.render("Player:", True, (255, 255, 255)), (x, y_offset))
+            main_screen.blit(card_font.render("Player:", True, (255, 255, 255)), (x, y_offset))
             for i, card in enumerate(game_logic.player_hand):
-                card_text = font.render(card, True, (255, 255, 255))
-                main_screen.blit(card_text, (x + i * 40, y_offset + 40))
+                suit = card[-1]
+                color = (255, 0, 0) if suit in '♥♦' else (0, 0, 0)
+                card_text = card_font.render(card, True, color)
+                main_screen.blit(card_text, (x + i * 60, y_offset + 50))
 
-
-            y_offset = 250  # Karty krupiera
-            main_screen.blit(font.render("Dealer:", True, (255, 255, 255)), (x, y_offset))
+            # Karty krupiera
+            y_offset = 250
+            main_screen.blit(card_font.render("Dealer:", True, (255, 255, 255)), (x, y_offset))
             for i, card in enumerate(game_logic.dealer_hand):
                 if i == 0 or game_logic.result:
                     display_card = card
+                    suit = card[-1]
+                    color = (255, 0, 0) if suit in '♥♦' else (0, 0, 0)
                 else:
                     display_card = "??"
-                card_text = font.render(display_card, True, (255, 255, 255))
-                main_screen.blit(card_text, (x + i * 40, y_offset + 40))
+                    color = (255, 255, 255)
+                card_text = card_font.render(display_card, True, color)
+                main_screen.blit(card_text, (x + i * 60, y_offset + 50))
 
             # Wynik
             if game_logic.result:
-                result_text = font.render(f"Result: {game_logic.result}", True, (255, 215, 0))
+                result_text = result_font.render(f"Result: {game_logic.result}", True, (255, 215, 0))
                 main_screen.blit(result_text, (x, 500))
     if state == "OPTIONS":
         play_button.active = False
