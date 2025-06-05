@@ -334,11 +334,13 @@ main_menu_background=image_manager.load("menu_background.jpg")
 logo=image_manager.load("logo.jpg")
 table=image_manager.load("stol.jpg")
 case_background = image_manager.load("case_background.jpg")
+instruction_background = image_manager.load("instruction_background.jpg")
 
 # backgrounds
 main_menu_background=toggle_fullscreen(fullscreen,main_menu_background,"menu_background.jpg")
 table=toggle_fullscreen(fullscreen,table,"stol.jpg")
 case_background = toggle_fullscreen(fullscreen,case_background, "case_background.jpg")
+instruction_background = toggle_fullscreen(fullscreen, instruction_background, "instruction_background.jpg")
 # glosnosc glownej muzyki
 pygame.mixer.music.set_volume(0.5)
 
@@ -406,6 +408,7 @@ while running:
                 main_menu_background=toggle_fullscreen(fullscreen,main_menu_background,"menu_background.jpg")
                 table=toggle_fullscreen(fullscreen,table,"stol.jpg")
                 case_background = toggle_fullscreen(fullscreen, case_background, "case_background.jpg")
+                instruction_background = toggle_fullscreen(fullscreen, instruction_background, "instruction_background.jpg")
 
 
 
@@ -513,7 +516,7 @@ while running:
         fullscreen_button_info.active = True
         back_to_menu.active = True
 
-        main_screen.blit(main_menu_background, (0, 0))
+        main_screen.blit(instruction_background, (0, 0))
         back_to_menu.draw(main_screen)
 
         #obliczam dostepne miejsce w oknie instrukcja
