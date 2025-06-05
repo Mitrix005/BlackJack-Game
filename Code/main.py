@@ -1,7 +1,11 @@
 import pygame
 import os
 import configparser
+
+from lootboxy import Lootbox
+
 import random
+
 
 from pygame import SurfaceType      # potrzebne do adnotacji
 from pygame.mixer import Sound      # potrzebne do adnotacji
@@ -26,6 +30,12 @@ def toggle_fullscreen(info : bool, background : SurfaceType = None,  filename : 
             background = image_manager.scaled(filename,(1472,832))
             return background
 
+#funkcja do wczytania pliku tekstowego z instrukcja
+def load_instructions(path="instrukcja_dla_gracza.txt"):
+    if os.path.isfile(path):
+        with open(path, "r", encoding="utf-8") as file:
+            return file.readlines()
+    return ["Brak instrukcji"]
 
 # plik konfiguracyjny
 config = configparser.ConfigParser()
@@ -35,6 +45,9 @@ config_file = 'config.cfg'
 default_settings = {
     'Display': {'fullscreen': 'True'}
 }
+
+current_lootbox = None
+lootbox_active = False
 
 # sprawdza czy istnieje config, jak nie to go tworzy i uzupełnia z default_settings (config jest tylko lokalny i jest w .gitignore)
 if not os.path.isfile(config_file):
@@ -111,6 +124,7 @@ class MusicManager:
     def __init__(self) -> None:
         self.menu_music_path = self.load("../Audio/menu_theme.mp3")
         self.game_music_path = self.load('../Audio/game_theme_low_stakes.mp3')
+        self.gamble_music_path = self.load("../Audio/case_theme.wav")
         self.state = None
 
     def play_menu(self) -> None:
@@ -124,6 +138,15 @@ class MusicManager:
             pygame.mixer.music.load(self.game_music_path)
             pygame.mixer.music.play(-1)
             self.state = "GAME"
+
+
+    def play_gamble(self) -> None:
+        if self.state != "GAMBLE":
+            pygame.mixer.music.load(self.gamble_music_path)
+            pygame.mixer.music.play(-1)
+            self.state = "GAMBLE"
+
+
 
     def stop_music(self) -> None:
         pygame.mixer.music.stop()
@@ -162,28 +185,45 @@ class ImageManager:
 
 #klasa implementująca logikę gry
 class Game_Logic:
-    def __init__(self): #początkowy stan przed rozpoczęciem gry
-        self.reset()
 
-    def reset(self) -> None:
-        self.deck = [value + suit for value in '23456789TJQKA' for suit in '♠♥♦♣']
+
+    def __init__(self): #początkowy stan przed rozpoczęciem gry
+        self.deck = []
+        self.player_hand = []
+        self.dealer_hand = []
+        self.player_standing = False
+        self.result = ""
+
+    def reset(self):
+        self.deck = [value + suit for value in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+                         for suit in '♠♥♦♣']
         random.shuffle(self.deck)
-        self.player_hand=[]
-        self.dealer_hand=[]
+        self.player_hand = []
+        self.dealer_hand = []
         self.player_standing = False
         self.result = ""
         self.deal_initial_cards()
 
-    def deal_initial_cards(self) -> None:  #dobranie kart na początku
-        self.player_hand = [self.deck.pop(), self.deck.pop()]
-        self.dealer_hand = [self.deck.pop(), self.deck.pop()]
+    def reset_deck(self):
+        self.deck = [value + suit for value in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+                     for suit in '♠♥♦♣']
+        random.shuffle(self.deck)
 
-    def hand_value(self, hand) ->int:  #liczenie wartości ręki gracza
+
+    def deal_initial_cards(self):
+        if len(self.deck) >= 4:
+            self.player_hand = [self.deck.pop(), self.deck.pop()]
+            self.dealer_hand = [self.deck.pop(), self.deck.pop()]
+        else:
+            self.reset_deck()
+            self.deal_initial_cards()
+
+    def hand_value(self, hand) -> int:
         score = 0
         aces = 0
         for card in hand:
-            rank = card[0]
-            if rank in 'TJQK':
+            rank = card[:-1]
+            if rank in ['J', 'Q', 'K']:
                 score += 10
             elif rank == 'A':
                 aces += 1
@@ -196,10 +236,12 @@ class Game_Logic:
         return score
 
     def hit(self): #dobranie karty przez garcza
-        if not self.player_standing and self.result == "":
-            self.player_hand.append(self.deck.pop())
-            if self.hand_value(self.player_hand) > 21:
-                self.result = "Bust! Dealer wins."
+
+         if not self.player_standing and self.result == "":
+            if len(self.deck) > 0:
+                self.player_hand.append(self.deck.pop())
+                if self.hand_value(self.player_hand) > 21:
+                    self.result = "Dealer wins."
 
     def stand(self): #gracz przestaje dobierać karty
         if not self.player_standing and self.result == "":
@@ -219,7 +261,6 @@ class Game_Logic:
             self.result = "Draw"
         else:
             self.result = "Dealer wins"
-
     # zainicjowanie gry
 pygame.init()
 
@@ -239,8 +280,15 @@ pygame.display.set_caption("BlackJack-Game")
 # dzwieki
 jackpot_sound = Sound('../Audio/Jackpot.wav')
 jackpot_sound.s.set_volume(0.5)
+lootbox_open_sound = Sound("../Audio/case_opening.wav")
+lootbox_open_sound.s.set_volume(0.5)
+lootbox_spin_sound = Sound("../Audio/case_spin2.wav")
+lootbox_spin_sound.s.set_volume(0.5)
 button_click_sound = Sound('../Audio/rozdanie_karty.mp3')
 button_click_sound.s.set_volume(0.5)
+lootbox_opened_sound = Sound("../Audio/case_opened3.wav")
+lootbox_opened_sound.s.set_volume(1)
+
 
 # przyciski
 
@@ -248,11 +296,13 @@ play_button = Button(main_screen,636,400,200, 60,"Play", (40,40,40),(32,32,32), 
 
 gamble_button = Button(main_screen, 636, 500, 200, 60, "$ Gamble $", (255,215,0), (255,190,0), button_click_sound)
 
-quit_button = Button(main_screen, 636, 700, 200, 60, "Quit", (40,40,40), (32,32,32), button_click_sound)
+quit_button = Button(main_screen, 636, 800, 200, 60, "Quit", (40,40,40), (32,32,32), button_click_sound)
 
 back_to_menu = Button(main_screen,1100, 650, 200, 60, "Back", (40,40,40),(32,32,32), button_click_sound)
 
-options_button = Button(main_screen, 636,600, 200, 60, "Options", (40,40,40), (32,32,32), button_click_sound)
+options_button = Button(main_screen,  636,600, 200, 60, "Options", (40,40,40), (32,32,32), button_click_sound)
+
+instruction_button = Button(main_screen, 636, 700, 200, 60, "Instruction", (40,40,40), (32,32,32), button_click_sound)
 
 fullscreen_button_info = Button(main_screen,300, 300, 200, 60, "Fullscreen", (40,40,40), (40,40,40))
 
@@ -264,23 +314,31 @@ stand_button = Button(main_screen, 636,500,200, 60,"Stand", (40,40,40),(32,32,32
 
 deal_button = Button(main_screen, 636,700,200, 60,"Deal", (40,40,40),(32,32,32), button_click_sound)
 
-buttons = [play_button, gamble_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button]
+open_case_button = Button(main_screen, main_screen.get_width() // 2 - 100, 750, 200, 60,"Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound)
 
+buttons = [play_button, gamble_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button, instruction_button, open_case_button]
+
+
+
+# wczytanie pliku tekstowego z instrukcja
+instructions_text = load_instructions()
 
 # Zmienne Gry
 music_manager = MusicManager()
 image_manager = ImageManager('../Graphics')
+game_logic = Game_Logic()
 
 
 # wczytanie obrazow
 main_menu_background=image_manager.load("menu_background.jpg")
 logo=image_manager.load("logo.jpg")
 table=image_manager.load("stol.jpg")
+case_background = image_manager.load("case_background.jpg")
 
 # backgrounds
 main_menu_background=toggle_fullscreen(fullscreen,main_menu_background,"menu_background.jpg")
 table=toggle_fullscreen(fullscreen,table,"stol.jpg")
-
+case_background = toggle_fullscreen(fullscreen,case_background, "case_background.jpg")
 # glosnosc glownej muzyki
 pygame.mixer.music.set_volume(0.5)
 
@@ -289,7 +347,11 @@ pygame.display.set_icon(logo)
 
 state = "MENU" # stan gry
 running = True # czy gra dziala
+
+clock = pygame.time.Clock()
+FPS = 60
 while running:
+
 
     for event in pygame.event.get():                            #petla zdarzen
         if event.type == pygame.QUIT:
@@ -299,19 +361,42 @@ while running:
                 state = "GAME"
             if gamble_button.handle_event(event):
                 jackpot_sound.s.play()
+                state = "GAMBLE"
             if options_button.handle_event(event):
                 state = "OPTIONS"
+            if instruction_button.handle_event(event):
+                state = "INSTRUCTION"
             if quit_button.handle_event(event):
                 running = False
+        if state == "GAMBLE":
+            if back_to_menu.handle_event(event):
+                state = "MENU"
+                current_lootbox = None
+                lootbox_active = False
+            if open_case_button.handle_event(event):
+                current_lootbox.open()
+                lootbox_active = True
+                current_lootbox.animation_time = pygame.time.get_ticks()
+
+
+        if state == "INSTRUCTION":
+            if back_to_menu.handle_event(event):
+                state="MENU"
         if state == "GAME":                                     # wszystkie zdarzenia w game
             if back_to_menu.handle_event(event):
                 state = "MENU"
+            if hit_button.handle_event(event):
+                game_logic.hit()
+            if stand_button.handle_event(event):
+                game_logic.stand()
+            if deal_button.handle_event(event):
+                game_logic.reset()
+                game_logic.deal_initial_cards()
         if state == "OPTIONS":                                  # wszystkie zdarzenia w options
             if back_to_menu.handle_event(event):
                 state="MENU"
             if fullscreen_button.handle_event(event):
                 fullscreen = not fullscreen
-
                 if fullscreen:
                     config.set('Display', 'fullscreen', 'True')
                 else:
@@ -321,6 +406,8 @@ while running:
 
                 main_menu_background=toggle_fullscreen(fullscreen,main_menu_background,"menu_background.jpg")
                 table=toggle_fullscreen(fullscreen,table,"stol.jpg")
+                case_background = toggle_fullscreen(fullscreen, case_background, "case_background.jpg")
+
 
 
     if state == "MENU":                                                 #zarzadzanie muzyka i rysowaniem obiektow
@@ -334,6 +421,7 @@ while running:
         quit_button.active = True
         fullscreen_button.active = False
         fullscreen_button_info.active = False
+        instruction_button.active = True
 
         main_screen.blit(main_menu_background, (0, 0))
 
@@ -341,23 +429,59 @@ while running:
         options_button.draw(main_screen)
         gamble_button.draw(main_screen)
         quit_button.draw(main_screen)
+        instruction_button.draw(main_screen)
 
     if state == "GAME":
-        play_button.active = False
-        gamble_button.active = False
-        options_button.active = False
-        quit_button.active = False
-        back_to_menu.active = True
-        fullscreen_button.active = False
-        fullscreen_button_info.active = False
+        if state == "GAME":
+            play_button.active = False
+            gamble_button.active = False
+            options_button.active = False
+            quit_button.active = False
+            fullscreen_button.active = False
+            fullscreen_button_info.active = False
+            instruction_button.active = False
+            hit_button.active = True
+            stand_button.active = True
+            deal_button.active = True
+            back_to_menu.active = True
 
-        if music_manager.state != "GAME":
-            music_manager.play_game()
+            if music_manager.state != "GAME":
+                music_manager.play_game()
 
-        main_screen.blit(table, (0, 0))
+            main_screen.blit(table, (0, 0))
 
-        back_to_menu.draw(main_screen)
+            back_to_menu.draw(main_screen)
+            hit_button.draw(main_screen)
+            stand_button.draw(main_screen)
+            deal_button.draw(main_screen)
 
+            # Wyświetl karty
+            font = pygame.font.SysFont(None, 40)
+
+
+
+            y_offset = 100 #karty gracza
+            x = 200
+            main_screen.blit(font.render("Player:", True, (255, 255, 255)), (x, y_offset))
+            for i, card in enumerate(game_logic.player_hand):
+                card_text = font.render(card, True, (255, 255, 255))
+                main_screen.blit(card_text, (x + i * 40, y_offset + 40))
+
+
+            y_offset = 250  # Karty krupiera
+            main_screen.blit(font.render("Dealer:", True, (255, 255, 255)), (x, y_offset))
+            for i, card in enumerate(game_logic.dealer_hand):
+                if i == 0 or game_logic.result:
+                    display_card = card
+                else:
+                    display_card = "??"
+                card_text = font.render(display_card, True, (255, 255, 255))
+                main_screen.blit(card_text, (x + i * 40, y_offset + 40))
+
+            # Wynik
+            if game_logic.result:
+                result_text = font.render(f"Result: {game_logic.result}", True, (255, 215, 0))
+                main_screen.blit(result_text, (x, 500))
     if state == "OPTIONS":
         play_button.active = False
         gamble_button.active = False
@@ -366,6 +490,7 @@ while running:
         fullscreen_button.active = True
         fullscreen_button_info.active = True
         back_to_menu.active = True
+        instruction_button.active = False
 
         fullscreen_button.text = "Yes" if fullscreen else "No"
 
@@ -375,6 +500,127 @@ while running:
         fullscreen_button_info.draw(main_screen)
         back_to_menu.draw(main_screen)
 
+    if state == "INSTRUCTION" :
+        play_button.active = False
+        gamble_button.active = False
+        options_button.active = False
+        quit_button.active = False
+        fullscreen_button.active = True
+        fullscreen_button_info.active = True
+        back_to_menu.active = True
+
+        main_screen.blit(main_menu_background, (0, 0))
+        back_to_menu.draw(main_screen)
+
+        #obliczam dostepne miejsce w oknie instrukcja
+        screen_width , screen_height = main_screen.get_size()
+        margin_x = 50
+        margin_y = 50
+        available_screen_w = screen_width - 2 * margin_x
+        available_screen_h = screen_height - 2 * margin_y
+
+        #funkcja dostosowywuja rozklad i rozmiar tekstu do okna
+        line_count = len(instructions_text)
+        max_font = 28
+        min_font = 14
+
+        font_size = max_font
+        found = False
+
+        while font_size >= min_font and found is False:
+
+            font = pygame.font.SysFont (None,font_size)
+            line_height = font_size + 6
+            max_lines_in_col = available_screen_h // line_height
+            col_count = (line_count + max_lines_in_col - 1)// max_lines_in_col
+
+            if col_count * (font.size("M")[0] * 40) < available_screen_w:
+                found = True
+            else:
+                font_size -=1
+
+        if not found:
+
+            font_size = min_font
+            font = pygame.font.SysFont (None, font_size)
+            line_height = font_size + 6
+            max_lines_in_col = available_screen_h // line_height
+            col_count = (line_count + max_lines_in_col -1) // max_lines_in_col
+
+        column_width = available_screen_w // col_count
+
+        for i, line in enumerate (instructions_text):
+            col = i // max_lines_in_col
+            row = i % max_lines_in_col
+            x = margin_x + col * column_width
+            y = margin_y + row * line_height
+
+            text_surface=font.render(line.strip(), True, (255, 255, 255))
+            main_screen.blit(text_surface, (x, y))
+
+
+    if state == "GAMBLE":
+
+        play_button.active = False
+        gamble_button.active = False
+        options_button.active = False
+        quit_button.active = False
+        fullscreen_button.active = False
+        fullscreen_button_info.active = False
+        back_to_menu.active = True
+
+        main_screen.blit(case_background, (0, 0))
+        back_to_menu.draw(main_screen)
+
+        if music_manager.state != "GAMBLE":
+            music_manager.play_gamble()
+
+        if current_lootbox is None:
+            current_lootbox = Lootbox(
+                x = main_screen.get_width()//2 -100,
+                y = main_screen.get_height()//2 -250,
+
+
+            )
+            current_lootbox.load_sounds(
+                open_sound = lootbox_open_sound.s,
+                spin_sound =  lootbox_spin_sound.s,
+                jackpot_sound = jackpot_sound.s,
+                case_opened = lootbox_opened_sound.s
+
+            )
+            current_lootbox.animation_time = pygame.time.get_ticks()
+
+        #rysowanko
+        if current_lootbox:
+            current_lootbox.update()
+            current_lootbox.draw(main_screen)
+            #przycisk Otwórz kszynke kiedy lootbox sienie kreci
+            '''
+            open_case_button = Button(
+                main_screen, main_screen.get_width()//2 -100, 750 ,200,60,
+                "Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound
+            )
+            '''
+            open_case_button.active = (current_lootbox is None or (not current_lootbox.is_spinning and not current_lootbox.is_open))
+            open_case_button.draw(main_screen)
+
+        #obsługa przycisku
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and open_case_button.handle_event(event):
+                current_lootbox.open()
+                lootbox_active = True
+                current_lootbox.animation_time = pygame.time.get_ticks()
+
+        #resecik
+        if lootbox_active and not current_lootbox.is_spinning:
+            if pygame.time.get_ticks() - current_lootbox.animation_time > 2000:  # 5 sekund
+                lootbox_active = False
+                current_lootbox = None
+
 
     pygame.display.flip() #odswiezenie ekranu
+    clock.tick(FPS)
 pygame.quit() #wyjscie z gry
