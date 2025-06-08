@@ -105,7 +105,6 @@ class Lootbox():
         self.selected_reward = random.choice(reward_pool)
         self.current_texture = self.selected_reward["texture"]
 
-
     def update(self):
         current_time = pygame.time.get_ticks()
         if self.is_spinning:

@@ -334,9 +334,12 @@ common_button = Button(main_screen,100,100,200, 60,"Common", (40,40,40),(32,32,3
 
 rare_button = Button(main_screen,400,100,200, 60,"Rare", (40,40,40),(32,32,32), button_click_sound)
 
+
 epic_button = Button(main_screen,700,100,200, 60,"Epic", (40,40,40),(32,32,32), button_click_sound)
 
 legendary_button = Button(main_screen, 1000,100,200, 60,"Legendary", (40,40,40),(32,32,32), button_click_sound)
+
+
 
 gamble_button = Button(main_screen, 636, 400, 200, 60, "$ Gamble $", (255,215,0), (255,190,0), button_click_sound)
 
@@ -549,10 +552,12 @@ while running:
             fullscreen_button.active = False
             fullscreen_button_info.active = False
             instruction_button.active = False
-            hit_button.active = len(
-                game_logic.player_hand) > 0 and not game_logic.player_standing and game_logic.result == ""
-            stand_button.active = len(
-                game_logic.player_hand) > 0 and not game_logic.player_standing and game_logic.result == ""
+
+         
+
+            hit_button.active = len(game_logic.player_hand) > 0 and not game_logic.player_standing and game_logic.result == ""
+            stand_button.active = len(game_logic.player_hand) > 0 and not game_logic.player_standing and game_logic.result == ""
+
             deal_button.active = True
             back_to_menu.active = True
 
@@ -571,13 +576,17 @@ while running:
             result_font = pygame.font.SysFont("Arial", 36)
 
             # Karty gracza
+
             y_offset = 300
             x = 500
+
+
             main_screen.blit(card_font.render("Player:", True, (255, 255, 255)), (x, y_offset))
             for i, card in enumerate(game_logic.player_hand):
                 suit = card[-1]
                 color = (255, 0, 0) if suit in '♥♦' else (0, 0, 0)
                 card_text = card_font.render(card, True, color)
+
                 main_screen.blit(card_text, (x + i * 100, y_offset + 50))
 
             # Karty krupiera
@@ -595,12 +604,17 @@ while running:
                 card_text = card_font.render(display_card, True, color)
                 main_screen.blit(card_text, (x + i * 100, y_offset + 50))
 
+              
+
+            
             # Wynik
             if game_logic.result:
                 result_text = result_font.render(f"Result: {game_logic.result}", True, (255, 215, 0))
                 main_screen.blit(result_text, (x, 500))
+                
             if game_logic.player_standing and game_logic.dealer_revealing:
                 game_logic.update_dealer_reveal(pygame.time.get_ticks())
+                
     if state == "OPTIONS":
         play_button.active = False
         gamble_button.active = False
@@ -750,4 +764,3 @@ while running:
     clock.tick(FPS)
 pygame.quit() #wyjscie z gry
 
-pygame.quit()
