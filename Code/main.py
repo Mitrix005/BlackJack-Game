@@ -91,7 +91,7 @@ class Button:
             screen_width, screen_height = main_screen.get_size()
             scaled_x = self.x
             scaled_y = self.y
-            scaled_x = scaled_x*(screen_width/1472)
+            scaled_x = scaled_x*(screen_width/1472)+25
             scaled_y = scaled_y*(screen_height/832)
             self.rect = pygame.Rect(scaled_x, scaled_y, self.width, self.height)
             mouse = pygame.mouse.get_pos()
