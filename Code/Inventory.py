@@ -21,6 +21,7 @@ class Inventory():
         self.height = 355
         self.my_cards = []
         self.load_from_config()
+        self.type = Rarity.COMMON
         self.all_cards = {
             Rarity.COMMON : [
                 {"name" : "skin1", "texture" : pygame.image.load("../Graphics/rewers1.jpg")},
@@ -61,7 +62,9 @@ class Inventory():
 
         cards = config.get('Shelf', 'cards', fallback='')
         self.my_cards = cards.split(',')
-        print("Karty w inwentarzu:", self.my_cards if cards else "Brak kart")
+
+    def change_type(self, type1: Rarity):
+        self.type = type1
 
     def add_card(self, name: str):
         config.read(config_file)
@@ -79,37 +82,10 @@ class Inventory():
     def draw(self, screen : pygame.Surface):
         gap = 300
         i=1
-        for skin in self.all_cards[Rarity.COMMON]:
+        for skin in self.all_cards[self.type]:
             if skin['name'] in self.my_cards:
                 texture = skin["texture"]
                 scaled_texture = pygame.transform.scale(texture, (self.width - 10, self.height - 60))
-                screen.blit(scaled_texture, (-100 + i * gap , 100))
+                screen.blit(scaled_texture, (-190 + i * gap, 200))
                 i += 1
-
-
-    def draw_reward_info(self, screen : pygame.Surface):
-        font = pygame.font.SysFont("Arial", 24, bold=True)
-
-        #kolor tekstu
-        color = {
-            Rarity.COMMON : (255, 255, 255),    #murzynski
-            Rarity.RARE : (0, 100, 255),        #niebieski
-            Rarity.EPIC : (150, 0, 255),        #fioletowy
-            Rarity.LEGENDARY : (255, 165, 0 ),  #złoty
-
-        }.get(self.rarity, (255,255,255))
-        if self.rarity.value == "legendary" and self.czy_dzwiek == 0:
-            self.jackpot_sound.play()
-            self.czy_dzwiek = 1
-        elif self.czy_dzwiek == 0:
-            self.case_opened.play()
-            self.czy_dzwiek =1
-
-
-        text = font.render(f"{self.selected_reward['name']} ({self.rarity.name})", True, color)
-        screen.blit(text, (self.x, self.y -25))
-
-    pass
-
-i = Inventory(100, 200)
 
