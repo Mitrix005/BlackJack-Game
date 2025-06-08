@@ -363,13 +363,13 @@ game_logic = Game_Logic()
 # wczytanie obrazow
 main_menu_background=image_manager.load("menu_background.jpg")
 logo=image_manager.load("logo.jpg")
-table=image_manager.load("stol.jpg")
+table=image_manager.load("play_background.jpg")
 case_background = image_manager.load("case_background.jpg")
 instruction_background = image_manager.load("instruction_background.jpg")
 
 # backgrounds
 main_menu_background=toggle_fullscreen(fullscreen,main_menu_background,"menu_background.jpg")
-table=toggle_fullscreen(fullscreen,table,"stol.jpg")
+table=toggle_fullscreen(fullscreen,table,"play_background.jpg")
 case_background = toggle_fullscreen(fullscreen,case_background, "case_background.jpg")
 instruction_background = toggle_fullscreen(fullscreen, instruction_background, "instruction_background.jpg")
 # glosnosc glownej muzyki
@@ -473,7 +473,7 @@ while running:
                     config.write(configfile)
 
                 main_menu_background=toggle_fullscreen(fullscreen,main_menu_background,"menu_background.jpg")
-                table=toggle_fullscreen(fullscreen,table,"stol.jpg")
+                table=toggle_fullscreen(fullscreen,table,"play_background.jpg")
                 case_background = toggle_fullscreen(fullscreen, case_background, "case_background.jpg")
                 instruction_background = toggle_fullscreen(fullscreen, instruction_background, "instruction_background.jpg")
 
