@@ -78,6 +78,6 @@ class Inventory():
             if skin['name'] in self.my_cards:
                 texture = skin["texture"]
                 scaled_texture = pygame.transform.scale(texture, (self.width - 10, self.height - 60))
-                screen.blit(scaled_texture, (-190 + i * gap, 200))
+                screen.blit(scaled_texture, (-170 + i * gap, 250))
                 i += 1
 
