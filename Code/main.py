@@ -193,6 +193,10 @@ class Game_Logic:
         self.dealer_hand = []
         self.player_standing = False
         self.result = ""
+        self.reveal_start_time = None
+        self.reveal_index = 0
+        self.dealer_revealing = False
+        self.reveal_second_card = False
 
     def reset(self):
         self.deck = [value + suit for value in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
@@ -203,6 +207,7 @@ class Game_Logic:
         self.player_standing = False
         self.result = ""
         self.deal_initial_cards()
+        self.reveal_second_card = False
 
     def reset_deck(self):
         self.deck = [value + suit for value in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
@@ -235,6 +240,16 @@ class Game_Logic:
             aces -= 1
         return score
 
+    def update_dealer_reveal(self, current_time):
+        if self.dealer_revealing and self.result == "":
+            if current_time - self.reveal_start_time >= 2000:
+                if self.hand_value(self.dealer_hand) < 17 and len(self.deck) > 0:
+                    self.dealer_hand.append(self.deck.pop())
+                    self.reveal_start_time = current_time
+                else:
+                    self.dealer_revealing = False
+                    self.winner()
+
     def hit(self): #dobranie karty przez garcza
 
          if not self.player_standing and self.result == "":
@@ -246,9 +261,9 @@ class Game_Logic:
     def stand(self): #gracz przestaje dobierać karty
         if not self.player_standing and self.result == "":
             self.player_standing = True
-            while self.hand_value(self.dealer_hand) < 17:
-                self.dealer_hand.append(self.deck.pop())
-            self.winner()
+            self.reveal_second_card = True
+            self.dealer_revealing = True
+            self.reveal_start_time = pygame.time.get_ticks()
 
     def winner(self): # wybór zwycięzcy
         player = self.hand_value(self.player_hand)
@@ -466,26 +481,28 @@ while running:
                 suit = card[-1]
                 color = (255, 0, 0) if suit in '♥♦' else (0, 0, 0)
                 card_text = card_font.render(card, True, color)
-                main_screen.blit(card_text, (x + i * 60, y_offset + 50))
+                main_screen.blit(card_text, (x + i * 100, y_offset + 50))
 
             # Karty krupiera
-            y_offset = 250
-            main_screen.blit(card_font.render("Dealer:", True, (255, 255, 255)), (x, y_offset))
+            y_offset =200
+            x=200
             for i, card in enumerate(game_logic.dealer_hand):
-                if i == 0 or game_logic.result:
+                if i == 1 and not game_logic.reveal_second_card and not game_logic.result:
+                    display_card = "??"
+                    color = (255, 255, 255)
+                else:
                     display_card = card
                     suit = card[-1]
                     color = (255, 0, 0) if suit in '♥♦' else (0, 0, 0)
-                else:
-                    display_card = "??"
-                    color = (255, 255, 255)
                 card_text = card_font.render(display_card, True, color)
-                main_screen.blit(card_text, (x + i * 60, y_offset + 50))
+                main_screen.blit(card_text, (x + i * 100, y_offset + 50))
 
             # Wynik
             if game_logic.result:
                 result_text = result_font.render(f"Result: {game_logic.result}", True, (255, 215, 0))
                 main_screen.blit(result_text, (x, 500))
+            if game_logic.player_standing and game_logic.dealer_revealing:
+                game_logic.update_dealer_reveal(pygame.time.get_ticks())
     if state == "OPTIONS":
         play_button.active = False
         gamble_button.active = False
@@ -627,4 +644,4 @@ while running:
 
     pygame.display.flip() #odswiezenie ekranu
     clock.tick(FPS)
-pygame.quit() #wyjscie z gry
+pygame.quit()
