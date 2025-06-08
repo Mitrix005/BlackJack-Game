@@ -58,18 +58,30 @@ class Lootbox():
                 {"name": "skin8", "texture": pygame.image.load("../Graphics/rewers8.jpg")},
                 {"name": "skin9", "texture": pygame.image.load("../Graphics/rewers9.jpg")},
                 {"name": "skin10", "texture": pygame.image.load("../Graphics/rewers10.jpg")},
+                {"name": "skin19", "texture": pygame.image.load("../Graphics/rewers19.jpg")},
+                {"name": "skin20", "texture": pygame.image.load("../Graphics/rewers20.jpg")},
+                {"name": "skin21", "texture": pygame.image.load("../Graphics/rewers21.jpg")},
+                {"name": "skin22", "texture": pygame.image.load("../Graphics/rewers22.jpg")},
+                {"name": "skin23", "texture": pygame.image.load("../Graphics/rewers23.jpg")},
+                {"name": "skin24", "texture": pygame.image.load("../Graphics/rewers24.jpg")},
+                {"name": "skin25", "texture": pygame.image.load("../Graphics/rewers25.jpg")},
+                {"name": "skin26", "texture": pygame.image.load("../Graphics/rewers26.jpg")},
+                {"name": "skin27", "texture": pygame.image.load("../Graphics/rewers27.jpg")},
+                {"name": "skin28", "texture": pygame.image.load("../Graphics/rewers28.jpg")},
+
 
             ],
             Rarity.RARE : [
-                {"name" : "skin2", "texture" : pygame.image.load("../Graphics/rewers2.jpg")},
-                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers14.jpg")},
-                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers15.jpg")},
-                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers16.jpg")},
-                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers17.jpg")},
-                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers13.jpg")},
+                {"name": "skin2", "texture" : pygame.image.load("../Graphics/rewers2.jpg")},
+
+                {"name": "skin14", "texture": pygame.image.load("../Graphics/rewers14.jpg")},
+                {"name": "skin15", "texture": pygame.image.load("../Graphics/rewers15.jpg")},
+                {"name": "skin16", "texture": pygame.image.load("../Graphics/rewers16.jpg")},
+
+                {"name": "skin13", "texture": pygame.image.load("../Graphics/rewers13.jpg")},
             ],
             Rarity.EPIC : [
-                {"name" : "skin4", "texture" : pygame.image.load("../Graphics/rewers4.jpg")},
+                {"name": "skin4", "texture" : pygame.image.load("../Graphics/rewers4.jpg")},
                 {"name": "skin12", "texture": pygame.image.load("../Graphics/rewers12.jpg")},
             ],
             Rarity.LEGENDARY : [
