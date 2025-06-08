@@ -347,7 +347,7 @@ stand_button = Button(main_screen, 636,500,200, 60,"Stand", (40,40,40),(32,32,32
 
 deal_button = Button(main_screen, 636,700,200, 60,"Deal", (40,40,40),(32,32,32), button_click_sound)
 
-open_case_button = Button(main_screen, main_screen.get_width() // 2 - 100, 750, 200, 60,"Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound)
+open_case_button = Button(main_screen, 636, 750, 200, 60,"Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound)
 
 buttons = [play_button, common_button, epic_button, rare_button, legendary_button, inventory_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button, instruction_button, open_case_button]
 
