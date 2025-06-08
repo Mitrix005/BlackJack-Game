@@ -3,9 +3,10 @@ import os
 import configparser
 
 from lootboxy import Lootbox
+from Inventory import Inventory
+from rarity import Rarity
 
 import random
-
 
 from pygame import SurfaceType      # potrzebne do adnotacji
 from pygame.mixer import Sound      # potrzebne do adnotacji
@@ -43,7 +44,9 @@ config_file = 'config.cfg'
 
 # domyslny config
 default_settings = {
-    'Display': {'fullscreen': 'True'}
+    'Display' : {'fullscreen': 'True'},
+    'Music' : {'volume' : '0.5'},
+    'Shelf' : {'cards' : ''}
 }
 
 current_lootbox = None
@@ -83,13 +86,30 @@ class Button:
     def draw(self, screen : SurfaceType) -> None:
         if not self.active:
             return None
-        mouse = pygame.mouse.get_pos()
-        is_hovered = self.rect.collidepoint(mouse)
-        pygame.draw.rect(screen, self.hover_color if is_hovered else self.color, self.rect)
-        text_surf = self.font.render(self.text, True, self.text_color)
-        text_rect = text_surf.get_rect(centerx=self.rect.centerx, centery=self.rect.centery)
-        screen.blit(text_surf, text_rect)
-        return None
+
+        if fullscreen:
+            screen_width, screen_height = main_screen.get_size()
+            scaled_x = self.x
+            scaled_y = self.y
+            scaled_x = scaled_x*(screen_width/1472)
+            scaled_y = scaled_y*(screen_height/832)
+            self.rect = pygame.Rect(scaled_x, scaled_y, self.width, self.height)
+            mouse = pygame.mouse.get_pos()
+            is_hovered = self.rect.collidepoint(mouse)
+            pygame.draw.rect(screen, self.hover_color if is_hovered else self.color, self.rect)
+            text_surf = self.font.render(self.text, True, self.text_color)
+            text_rect = text_surf.get_rect(centerx=self.rect.centerx, centery=self.rect.centery)
+            screen.blit(text_surf, text_rect)
+            return None
+        if not fullscreen:
+            self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+            mouse = pygame.mouse.get_pos()
+            is_hovered = self.rect.collidepoint(mouse)
+            pygame.draw.rect(screen, self.hover_color if is_hovered else self.color, self.rect)
+            text_surf = self.font.render(self.text, True, self.text_color)
+            text_rect = text_surf.get_rect(centerx=self.rect.centerx, centery=self.rect.centery)
+            screen.blit(text_surf, text_rect)
+            return None
 
     # sprawdza czy przycisk zostal klikniety
     def handle_event(self, event : EventType) -> bool:
@@ -304,24 +324,37 @@ button_click_sound.s.set_volume(0.5)
 lootbox_opened_sound = Sound("../Audio/case_opened3.wav")
 lootbox_opened_sound.s.set_volume(1)
 
-
 # przyciski
 
-play_button = Button(main_screen,636,400,200, 60,"Play", (40,40,40),(32,32,32), button_click_sound)
+play_button = Button(main_screen,636,300,200, 60,"Play", (40,40,40),(32,32,32), button_click_sound)
 
-gamble_button = Button(main_screen, 636, 500, 200, 60, "$ Gamble $", (255,215,0), (255,190,0), button_click_sound)
+inventory_button = Button(main_screen,236,400,200, 60,"Inventory", (40,40,40),(32,32,32), button_click_sound)
 
-quit_button = Button(main_screen, 636, 800, 200, 60, "Quit", (40,40,40), (32,32,32), button_click_sound)
+common_button = Button(main_screen,100,100,200, 60,"Common", (40,40,40),(32,32,32), button_click_sound)
+
+rare_button = Button(main_screen,400,100,200, 60,"Rare", (40,40,40),(32,32,32), button_click_sound)
+
+epic_button = Button(main_screen,700,100,200, 60,"Epic", (40,40,40),(32,32,32), button_click_sound)
+
+legendary_button = Button(main_screen, 1000,100,200, 60,"Legendary", (40,40,40),(32,32,32), button_click_sound)
+
+gamble_button = Button(main_screen, 636, 400, 200, 60, "$ Gamble $", (255,215,0), (255,190,0), button_click_sound)
+
+quit_button = Button(main_screen, 636, 700, 200, 60, "Quit", (40,40,40), (32,32,32), button_click_sound)
 
 back_to_menu = Button(main_screen,1100, 650, 200, 60, "Back", (40,40,40),(32,32,32), button_click_sound)
 
-options_button = Button(main_screen,  636,600, 200, 60, "Options", (40,40,40), (32,32,32), button_click_sound)
+options_button = Button(main_screen,  636,500, 200, 60, "Options", (40,40,40), (32,32,32), button_click_sound)
 
-instruction_button = Button(main_screen, 636, 700, 200, 60, "Instruction", (40,40,40), (32,32,32), button_click_sound)
+instruction_button = Button(main_screen, 636, 600, 200, 60, "Instruction", (40,40,40), (32,32,32), button_click_sound)
 
 fullscreen_button_info = Button(main_screen,300, 300, 200, 60, "Fullscreen", (40,40,40), (40,40,40))
 
-fullscreen_button= Button(main_screen, 600, 300, 200, 60, "", (40,40,40), (32,32,32), button_click_sound)
+fullscreen_button = Button(main_screen, 600, 300, 200, 60, "", (40,40,40), (32,32,32), button_click_sound)
+
+music_button_info = Button(main_screen,300, 400, 200, 60, "Volume", (40,40,40), (40,40,40))
+
+music_button = Button(main_screen, 600, 400, 200, 60, "", (40,40,40), (32,32,32), button_click_sound)
 
 hit_button = Button(main_screen, 636,400,200, 60,"Hit", (40,40,40),(32,32,32), button_click_sound)
 
@@ -329,11 +362,9 @@ stand_button = Button(main_screen, 636,500,200, 60,"Stand", (40,40,40),(32,32,32
 
 deal_button = Button(main_screen, 636,700,200, 60,"Deal", (40,40,40),(32,32,32), button_click_sound)
 
-open_case_button = Button(main_screen, main_screen.get_width() // 2 - 100, 750, 200, 60,"Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound)
+open_case_button = Button(main_screen, 636, 750, 200, 60,"Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound)
 
-buttons = [play_button, gamble_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button, instruction_button, open_case_button]
-
-
+buttons = [play_button, common_button, epic_button, rare_button, legendary_button, inventory_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button, instruction_button, open_case_button]
 
 # wczytanie pliku tekstowego z instrukcja
 instructions_text = load_instructions()
@@ -347,17 +378,18 @@ game_logic = Game_Logic()
 # wczytanie obrazow
 main_menu_background=image_manager.load("menu_background.jpg")
 logo=image_manager.load("logo.jpg")
-table=image_manager.load("stol.jpg")
+table=image_manager.load("play_background.jpg")
 case_background = image_manager.load("case_background.jpg")
 instruction_background = image_manager.load("instruction_background.jpg")
 
 # backgrounds
 main_menu_background=toggle_fullscreen(fullscreen,main_menu_background,"menu_background.jpg")
-table=toggle_fullscreen(fullscreen,table,"stol.jpg")
+table=toggle_fullscreen(fullscreen,table,"play_background.jpg")
 case_background = toggle_fullscreen(fullscreen,case_background, "case_background.jpg")
 instruction_background = toggle_fullscreen(fullscreen, instruction_background, "instruction_background.jpg")
 # glosnosc glownej muzyki
-pygame.mixer.music.set_volume(0.5)
+music_volume = config.getfloat('Music','volume')
+pygame.mixer.music.set_volume(music_volume)
 
 # ustawienie logo
 pygame.display.set_icon(logo)
@@ -367,6 +399,9 @@ running = True # czy gra dziala
 
 clock = pygame.time.Clock()
 FPS = 60
+
+inventory = Inventory(200, 200)
+
 while running:
 
 
@@ -379,6 +414,8 @@ while running:
             if gamble_button.handle_event(event):
                 jackpot_sound.s.play()
                 state = "GAMBLE"
+            if inventory_button.handle_event(event):
+                state = "INVENTORY"
             if options_button.handle_event(event):
                 state = "OPTIONS"
             if instruction_button.handle_event(event):
@@ -395,6 +432,34 @@ while running:
                 lootbox_active = True
                 current_lootbox.animation_time = pygame.time.get_ticks()
 
+        if state == "INVENTORY":
+            inventory.load_from_config()
+            if back_to_menu.handle_event(event):
+                state="MENU"
+            if common_button.handle_event(event):
+                inventory.change_type(Rarity.COMMON)
+                common_button.color = (42, 217, 129)
+                rare_button.color = (40, 40, 40)
+                epic_button.color = (40, 40, 40)
+                legendary_button.color = (40, 40, 40)
+            if rare_button.handle_event(event):
+                inventory.change_type(Rarity.RARE)
+                common_button.color = (40, 40, 40)
+                rare_button.color = (42, 217, 129)
+                epic_button.color = (40, 40, 40)
+                legendary_button.color = (40, 40, 40)
+            if epic_button.handle_event(event):
+                inventory.change_type(Rarity.EPIC)
+                common_button.color = (40, 40, 40)
+                rare_button.color = (40, 40, 40)
+                epic_button.color = (42, 217, 129)
+                legendary_button.color = (40, 40, 40)
+            if legendary_button.handle_event(event):
+                inventory.change_type(Rarity.LEGENDARY)
+                common_button.color = (40, 40, 40)
+                rare_button.color = (40, 40, 40)
+                epic_button.color = (40, 40, 40)
+                legendary_button.color = (42, 217, 129)
 
         if state == "INSTRUCTION":
             if back_to_menu.handle_event(event):
@@ -408,9 +473,11 @@ while running:
                 game_logic.stand()
             if deal_button.handle_event(event):
                 game_logic.reset()
+
         if state == "OPTIONS":                                  # wszystkie zdarzenia w options
             if back_to_menu.handle_event(event):
                 state="MENU"
+
             if fullscreen_button.handle_event(event):
                 fullscreen = not fullscreen
                 if fullscreen:
@@ -421,11 +488,20 @@ while running:
                     config.write(configfile)
 
                 main_menu_background=toggle_fullscreen(fullscreen,main_menu_background,"menu_background.jpg")
-                table=toggle_fullscreen(fullscreen,table,"stol.jpg")
+                table=toggle_fullscreen(fullscreen,table,"play_background.jpg")
                 case_background = toggle_fullscreen(fullscreen, case_background, "case_background.jpg")
                 instruction_background = toggle_fullscreen(fullscreen, instruction_background, "instruction_background.jpg")
 
-
+            if music_button.handle_event(event):
+                if music_volume < 1:
+                    music_volume += 0.25
+                    config.set('Music', 'volume', str(music_volume))
+                else:
+                    music_volume = 0
+                    config.set('Music', 'volume', str(music_volume))
+                with open(config_file, 'w') as configfile:
+                    config.write(configfile)
+            pygame.mixer.music.set_volume(music_volume)
 
     if state == "MENU":                                      #zarzadzanie muzyka i rysowaniem obiektow
         if music_manager.state != "MENU":
@@ -433,6 +509,7 @@ while running:
 
         back_to_menu.active = False
         play_button.active = True
+        inventory_button.active = True
         gamble_button.active = True
         options_button.active = True
         quit_button.active = True
@@ -443,10 +520,25 @@ while running:
         main_screen.blit(main_menu_background, (0, 0))
 
         play_button.draw(main_screen)
+        inventory_button.draw(main_screen)
         options_button.draw(main_screen)
         gamble_button.draw(main_screen)
         quit_button.draw(main_screen)
         instruction_button.draw(main_screen)
+
+    if state == "INVENTORY":
+        back_to_menu.active = True
+        common_button.active = True
+        rare_button.active = True
+        epic_button.active = True
+        legendary_button.active = True
+        main_screen.blit(table, (0, 0))
+        back_to_menu.draw(main_screen)
+        common_button.draw(main_screen)
+        rare_button.draw(main_screen)
+        epic_button.draw(main_screen)
+        legendary_button.draw(main_screen)
+        inventory.draw(main_screen)
 
     if state == "GAME":
         if state == "GAME":
@@ -457,8 +549,10 @@ while running:
             fullscreen_button.active = False
             fullscreen_button_info.active = False
             instruction_button.active = False
-            hit_button.active = len(game_logic.player_hand) > 0 and not game_logic.player_standing and game_logic.result == ""
-            stand_button.active = len(game_logic.player_hand) > 0 and not game_logic.player_standing and game_logic.result == ""
+            hit_button.active = len(
+                game_logic.player_hand) > 0 and not game_logic.player_standing and game_logic.result == ""
+            stand_button.active = len(
+                game_logic.player_hand) > 0 and not game_logic.player_standing and game_logic.result == ""
             deal_button.active = True
             back_to_menu.active = True
 
@@ -477,8 +571,8 @@ while running:
             result_font = pygame.font.SysFont("Arial", 36)
 
             # Karty gracza
-            y_offset = 100
-            x = 200
+            y_offset = 300
+            x = 500
             main_screen.blit(card_font.render("Player:", True, (255, 255, 255)), (x, y_offset))
             for i, card in enumerate(game_logic.player_hand):
                 suit = card[-1]
@@ -487,8 +581,9 @@ while running:
                 main_screen.blit(card_text, (x + i * 100, y_offset + 50))
 
             # Karty krupiera
-            y_offset =200
-            x=200
+            y_offset = 400
+            x = 500
+            main_screen.blit(card_font.render("Dealer:", True, (255, 255, 255)), (x, y_offset))
             for i, card in enumerate(game_logic.dealer_hand):
                 if i == 1 and not game_logic.reveal_second_card and not game_logic.result:
                     display_card = "??"
@@ -513,15 +608,21 @@ while running:
         quit_button.active = False
         fullscreen_button.active = True
         fullscreen_button_info.active = True
+        music_button.active = True
+        music_button_info.active = True
         back_to_menu.active = True
         instruction_button.active = False
 
         fullscreen_button.text = "Yes" if fullscreen else "No"
 
+        music_button.text = str(music_volume)
+
         main_screen.blit(main_menu_background, (0,0))
 
         fullscreen_button.draw(main_screen)
         fullscreen_button_info.draw(main_screen)
+        music_button.draw(main_screen)
+        music_button_info.draw(main_screen)
         back_to_menu.draw(main_screen)
 
     if state == "INSTRUCTION" :
@@ -647,4 +748,6 @@ while running:
 
     pygame.display.flip() #odswiezenie ekranu
     clock.tick(FPS)
+pygame.quit() #wyjscie z gry
+
 pygame.quit()

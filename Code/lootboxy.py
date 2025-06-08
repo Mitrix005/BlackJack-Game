@@ -2,7 +2,9 @@ import pygame
 import random
 import sys
 import time
-from enum import Enum
+
+from Inventory import Inventory
+from rarity import Rarity
 
 pygame.init()
 
@@ -10,12 +12,7 @@ pygame.init()
 SZEROKOSC_EKRANU: int = 1920
 WYSOKOSC_EKRANU: int = 1080
 '''
-
-class Rarity(Enum):
-    COMMON = "common"
-    RARE = "rare"
-    EPIC = "epic"
-    LEGENDARY = "legendary"
+inventory = Inventory(100, 100)
 
 class Lootbox():
     def __init__(self, x : int, y : int) -> None:
@@ -58,30 +55,30 @@ class Lootbox():
                 {"name": "skin8", "texture": pygame.image.load("../Graphics/rewers8.jpg")},
                 {"name": "skin9", "texture": pygame.image.load("../Graphics/rewers9.jpg")},
                 {"name": "skin10", "texture": pygame.image.load("../Graphics/rewers10.jpg")},
+                {"name": "skin18", "texture": pygame.image.load("../Graphics/rewers18.jpg")},
                 {"name": "skin19", "texture": pygame.image.load("../Graphics/rewers19.jpg")},
                 {"name": "skin20", "texture": pygame.image.load("../Graphics/rewers20.jpg")},
                 {"name": "skin21", "texture": pygame.image.load("../Graphics/rewers21.jpg")},
                 {"name": "skin22", "texture": pygame.image.load("../Graphics/rewers22.jpg")},
                 {"name": "skin23", "texture": pygame.image.load("../Graphics/rewers23.jpg")},
                 {"name": "skin24", "texture": pygame.image.load("../Graphics/rewers24.jpg")},
-                {"name": "skin25", "texture": pygame.image.load("../Graphics/rewers25.jpg")},
-                {"name": "skin26", "texture": pygame.image.load("../Graphics/rewers26.jpg")},
-                {"name": "skin27", "texture": pygame.image.load("../Graphics/rewers27.jpg")},
-                {"name": "skin28", "texture": pygame.image.load("../Graphics/rewers28.jpg")},
 
 
             ],
             Rarity.RARE : [
-                {"name": "skin2", "texture" : pygame.image.load("../Graphics/rewers2.jpg")},
-
+                {"name" : "skin2", "texture" : pygame.image.load("../Graphics/rewers2.jpg")},
                 {"name": "skin14", "texture": pygame.image.load("../Graphics/rewers14.jpg")},
                 {"name": "skin15", "texture": pygame.image.load("../Graphics/rewers15.jpg")},
                 {"name": "skin16", "texture": pygame.image.load("../Graphics/rewers16.jpg")},
-
+                {"name": "skin17", "texture": pygame.image.load("../Graphics/rewers17.jpg")},
                 {"name": "skin13", "texture": pygame.image.load("../Graphics/rewers13.jpg")},
+                {"name": "skin25", "texture": pygame.image.load("../Graphics/rewers25.jpg")},
+                {"name": "skin26", "texture": pygame.image.load("../Graphics/rewers26.jpg")},
+                {"name": "skin27", "texture": pygame.image.load("../Graphics/rewers27.jpg")},
+                {"name": "skin28", "texture": pygame.image.load("../Graphics/rewers28.jpg")},
             ],
             Rarity.EPIC : [
-                {"name": "skin4", "texture" : pygame.image.load("../Graphics/rewers4.jpg")},
+                {"name" : "skin4", "texture" : pygame.image.load("../Graphics/rewers4.jpg")},
                 {"name": "skin12", "texture": pygame.image.load("../Graphics/rewers12.jpg")},
             ],
             Rarity.LEGENDARY : [
@@ -127,6 +124,8 @@ class Lootbox():
                 self.is_spinning = False
                 self.is_open = True
                 self.select_reward()
+                inventory.add_card(self.selected_reward['name'])
+                print(self.selected_reward['name'])
                 self.animation_time = pygame.time.get_ticks()
             if self.spin_sound and current_time - self.last_sound_time > 300: #naprawiono nakładajacy sie dzwiek spinow
                 #self.spin_sound.play()
@@ -164,39 +163,11 @@ class Lootbox():
             self.czy_dzwiek =1
 
 
-        text = font.render(f"{self.selected_reward["name"]} ({self.rarity.name})", True, color)
+        text = font.render(f"{self.selected_reward['name']} ({self.rarity.name})", True, color)
         screen.blit(text, (self.x, self.y -25))
 
     pass
 
 
-
-
-
-'''
-screen = pygame.display.set_mode((SZEROKOSC_EKRANU, WYSOKOSC_EKRANU))
-pygame.display.set_caption("Skrzynki")
-clock = pygame.time.Clock()
-
-asik = pygame.image.load('../Graphics/logo.jpg').convert()
-asik = pygame.transform.scale(asik,(100,100))
-running = True
-x=0
-while running:
-    screen.fill((255,255,255))
-    screen.blit(asik, (x,100))
-
-    x+=1
-    for event in pygame.event.get():
-        if event.type == pygame.quit:
-            running = False
-
-
-    pygame.display.flip()
-    clock.tick(60)
-
-
-pygame.quit()
-'''
 
 
