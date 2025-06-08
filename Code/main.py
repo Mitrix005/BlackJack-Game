@@ -83,13 +83,30 @@ class Button:
     def draw(self, screen : SurfaceType) -> None:
         if not self.active:
             return None
-        mouse = pygame.mouse.get_pos()
-        is_hovered = self.rect.collidepoint(mouse)
-        pygame.draw.rect(screen, self.hover_color if is_hovered else self.color, self.rect)
-        text_surf = self.font.render(self.text, True, self.text_color)
-        text_rect = text_surf.get_rect(centerx=self.rect.centerx, centery=self.rect.centery)
-        screen.blit(text_surf, text_rect)
-        return None
+
+        if fullscreen:
+            screen_width, screen_height = main_screen.get_size()
+            scaled_x = self.x
+            scaled_y = self.y
+            scaled_x = scaled_x*(screen_width/1472)
+            scaled_y = scaled_y*(screen_height/832)
+            self.rect = pygame.Rect(scaled_x, scaled_y, self.width, self.height)
+            mouse = pygame.mouse.get_pos()
+            is_hovered = self.rect.collidepoint(mouse)
+            pygame.draw.rect(screen, self.hover_color if is_hovered else self.color, self.rect)
+            text_surf = self.font.render(self.text, True, self.text_color)
+            text_rect = text_surf.get_rect(centerx=self.rect.centerx, centery=self.rect.centery)
+            screen.blit(text_surf, text_rect)
+            return None
+        if not fullscreen:
+            self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+            mouse = pygame.mouse.get_pos()
+            is_hovered = self.rect.collidepoint(mouse)
+            pygame.draw.rect(screen, self.hover_color if is_hovered else self.color, self.rect)
+            text_surf = self.font.render(self.text, True, self.text_color)
+            text_rect = text_surf.get_rect(centerx=self.rect.centerx, centery=self.rect.centery)
+            screen.blit(text_surf, text_rect)
+            return None
 
     # sprawdza czy przycisk zostal klikniety
     def handle_event(self, event : EventType) -> bool:
@@ -292,17 +309,17 @@ lootbox_opened_sound.s.set_volume(1)
 
 # przyciski
 
-play_button = Button(main_screen,636,400,200, 60,"Play", (40,40,40),(32,32,32), button_click_sound)
+play_button = Button(main_screen,636,300,200, 60,"Play", (40,40,40),(32,32,32), button_click_sound)
 
-gamble_button = Button(main_screen, 636, 500, 200, 60, "$ Gamble $", (255,215,0), (255,190,0), button_click_sound)
+gamble_button = Button(main_screen, 636, 400, 200, 60, "$ Gamble $", (255,215,0), (255,190,0), button_click_sound)
 
-quit_button = Button(main_screen, 636, 800, 200, 60, "Quit", (40,40,40), (32,32,32), button_click_sound)
+quit_button = Button(main_screen, 636, 700, 200, 60, "Quit", (40,40,40), (32,32,32), button_click_sound)
 
 back_to_menu = Button(main_screen,1100, 650, 200, 60, "Back", (40,40,40),(32,32,32), button_click_sound)
 
-options_button = Button(main_screen,  636,600, 200, 60, "Options", (40,40,40), (32,32,32), button_click_sound)
+options_button = Button(main_screen,  636,500, 200, 60, "Options", (40,40,40), (32,32,32), button_click_sound)
 
-instruction_button = Button(main_screen, 636, 700, 200, 60, "Instruction", (40,40,40), (32,32,32), button_click_sound)
+instruction_button = Button(main_screen, 636, 600, 200, 60, "Instruction", (40,40,40), (32,32,32), button_click_sound)
 
 fullscreen_button_info = Button(main_screen,300, 300, 200, 60, "Fullscreen", (40,40,40), (40,40,40))
 
@@ -314,7 +331,7 @@ stand_button = Button(main_screen, 636,500,200, 60,"Stand", (40,40,40),(32,32,32
 
 deal_button = Button(main_screen, 636,700,200, 60,"Deal", (40,40,40),(32,32,32), button_click_sound)
 
-open_case_button = Button(main_screen, main_screen.get_width() // 2 - 100, 750, 200, 60,"Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound)
+open_case_button = Button(main_screen, 636, 750, 200, 60,"Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound)
 
 buttons = [play_button, gamble_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button, instruction_button, open_case_button]
 
