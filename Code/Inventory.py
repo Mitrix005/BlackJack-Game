@@ -1,11 +1,12 @@
 import configparser
+from locale import currency
 
 import pygame
 import random
 import sys
 import time
 from enum import Enum
-from lootboxy import Rarity
+from rarity import Rarity
 
 pygame.init()
 
@@ -18,15 +19,35 @@ class Inventory():
         self.y = y
         self.width = 200
         self.height = 355
+        self.my_cards = []
         self.load_from_config()
-        self.textura_skrzynki = pygame.image.load("../Graphics/paka.jpg")
-        self.all_cards = \
-            [{"name" : "skin2", "texture" : pygame.image.load("../Graphics/rewers2.jpg")},
-            {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers14.jpg")}]
+        self.all_cards = {
+            Rarity.COMMON : [
+                {"name" : "skin1", "texture" : pygame.image.load("../Graphics/rewers1.jpg")},
+                {"name": "skin6", "texture": pygame.image.load("../Graphics/rewers6.jpg")},
+                {"name": "skin7", "texture": pygame.image.load("../Graphics/rewers7.jpg")},
+                {"name": "skin8", "texture": pygame.image.load("../Graphics/rewers8.jpg")},
+                {"name": "skin9", "texture": pygame.image.load("../Graphics/rewers9.jpg")},
+                {"name": "skin10", "texture": pygame.image.load("../Graphics/rewers10.jpg")},
 
-
-
-#Określenie jaki skin jest jak rzadki
+            ],
+            Rarity.RARE : [
+                {"name" : "skin2", "texture" : pygame.image.load("../Graphics/rewers2.jpg")},
+                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers14.jpg")},
+                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers15.jpg")},
+                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers16.jpg")},
+                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers17.jpg")},
+                {"name": "skin11", "texture": pygame.image.load("../Graphics/rewers13.jpg")},
+            ],
+            Rarity.EPIC : [
+                {"name" : "skin4", "texture" : pygame.image.load("../Graphics/rewers4.jpg")},
+                {"name": "skin12", "texture": pygame.image.load("../Graphics/rewers12.jpg")},
+            ],
+            Rarity.LEGENDARY : [
+                {"name": "skin5", "texture": pygame.image.load("../Graphics/rewers5.jpg")},
+                {"name": "skin13", "texture": pygame.image.load("../Graphics/rewers13.jpg")},
+            ]
+        }
 
     def load_from_config(self):
         config.read(config_file)
@@ -38,15 +59,9 @@ class Inventory():
             with open(config_file, 'w') as configfile:
                 config.write(configfile)
 
-    def get_cards(self):
-        config.read(config_file)
-        if config.has_section('Shelf'):
-            cards = config.get('Shelf', 'cards', fallback='')
-            lista = cards.split(',')
-            print("Karty w inwentarzu:", lista if cards else "Brak kart")
-
-        else:
-            print("Brak sekcji Shelf w configu.")
+        cards = config.get('Shelf', 'cards', fallback='')
+        self.my_cards = cards.split(',')
+        print("Karty w inwentarzu:", self.my_cards if cards else "Brak kart")
 
     def add_card(self, name: str):
         config.read(config_file)
@@ -62,15 +77,15 @@ class Inventory():
                 config.write(configfile)
 
     def draw(self, screen : pygame.Surface):
-        #kszynka
-        pygame.draw.rect(screen, (50, 50, 50), (self.x, self.y, self.width, self.height))
-        #rysowanko tektury
-        if self.current_texture:
-            texture = pygame.transform.scale(self.current_texture, (self.width -20, self.height-20))
-            screen.blit(texture, (self.x +10, self.y +10))
-        #otwarcie
-        if self.is_open and self.selected_reward:
-            self.draw_reward_info(screen)
+        gap = 300
+        i=1
+        for skin in self.all_cards[Rarity.COMMON]:
+            if skin['name'] in self.my_cards:
+                texture = skin["texture"]
+                scaled_texture = pygame.transform.scale(texture, (self.width - 10, self.height - 60))
+                screen.blit(scaled_texture, (-100 + i * gap , 100))
+                i += 1
+
 
     def draw_reward_info(self, screen : pygame.Surface):
         font = pygame.font.SysFont("Arial", 24, bold=True)
@@ -97,6 +112,4 @@ class Inventory():
     pass
 
 i = Inventory(100, 200)
-i.add_card('skin2')
-i.get_cards()
 

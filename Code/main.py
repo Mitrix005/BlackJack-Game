@@ -3,6 +3,7 @@ import os
 import configparser
 
 from lootboxy import Lootbox
+from Inventory import Inventory
 
 import random
 
@@ -294,6 +295,8 @@ lootbox_opened_sound.s.set_volume(1)
 
 play_button = Button(main_screen,636,400,200, 60,"Play", (40,40,40),(32,32,32), button_click_sound)
 
+inventory_button = Button(main_screen,236,400,200, 60,"Inventory", (40,40,40),(32,32,32), button_click_sound)
+
 gamble_button = Button(main_screen, 636, 500, 200, 60, "$ Gamble $", (255,215,0), (255,190,0), button_click_sound)
 
 quit_button = Button(main_screen, 636, 800, 200, 60, "Quit", (40,40,40), (32,32,32), button_click_sound)
@@ -316,7 +319,7 @@ deal_button = Button(main_screen, 636,700,200, 60,"Deal", (40,40,40),(32,32,32),
 
 open_case_button = Button(main_screen, main_screen.get_width() // 2 - 100, 750, 200, 60,"Otwórz paczke", (255, 190, 0), (255, 190, 0), button_click_sound)
 
-buttons = [play_button, gamble_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button, instruction_button, open_case_button]
+buttons = [play_button, inventory_button, quit_button, back_to_menu, options_button, fullscreen_button_info, fullscreen_button, hit_button, stand_button, deal_button, instruction_button, open_case_button]
 
 
 
@@ -350,6 +353,9 @@ running = True # czy gra dziala
 
 clock = pygame.time.Clock()
 FPS = 60
+
+inventory = Inventory(200, 200)
+
 while running:
 
 
@@ -359,6 +365,9 @@ while running:
         if state == "MENU":                                     # wszystkie zdarzenia w menu
             if play_button.handle_event(event):
                 state = "GAME"
+            if inventory_button.handle_event(event):
+                inventory.load_from_config()
+                state = "INVENTORY"
             if gamble_button.handle_event(event):
                 jackpot_sound.s.play()
                 state = "GAMBLE"
@@ -368,6 +377,11 @@ while running:
                 state = "INSTRUCTION"
             if quit_button.handle_event(event):
                 running = False
+
+        if state == "INVENTORY":
+            if back_to_menu.handle_event(event):
+                state="MENU"
+
         if state == "GAMBLE":
             if back_to_menu.handle_event(event):
                 state = "MENU"
@@ -416,6 +430,7 @@ while running:
 
         back_to_menu.active = False
         play_button.active = True
+        inventory_button.active = True
         gamble_button.active = True
         options_button.active = True
         quit_button.active = True
@@ -426,10 +441,18 @@ while running:
         main_screen.blit(main_menu_background, (0, 0))
 
         play_button.draw(main_screen)
+        inventory_button.draw(main_screen)
         options_button.draw(main_screen)
         gamble_button.draw(main_screen)
         quit_button.draw(main_screen)
         instruction_button.draw(main_screen)
+
+    if state == "INVENTORY":
+        back_to_menu.active = True
+        main_screen.blit(table, (0, 0))
+        back_to_menu.draw(main_screen)
+        inventory.draw(main_screen)
+
 
     if state == "GAME":
         if state == "GAME":

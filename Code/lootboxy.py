@@ -2,7 +2,9 @@ import pygame
 import random
 import sys
 import time
-from enum import Enum
+
+from Inventory import Inventory
+from rarity import Rarity
 
 pygame.init()
 
@@ -10,12 +12,7 @@ pygame.init()
 SZEROKOSC_EKRANU: int = 1920
 WYSOKOSC_EKRANU: int = 1080
 '''
-
-class Rarity(Enum):
-    COMMON = "common"
-    RARE = "rare"
-    EPIC = "epic"
-    LEGENDARY = "legendary"
+inventory = Inventory(100, 100)
 
 class Lootbox():
     def __init__(self, x : int, y : int) -> None:
@@ -96,7 +93,6 @@ class Lootbox():
         self.selected_reward = random.choice(reward_pool)
         self.current_texture = self.selected_reward["texture"]
 
-
     def update(self):
         current_time = pygame.time.get_ticks()
         if self.is_spinning:
@@ -115,6 +111,8 @@ class Lootbox():
                 self.is_spinning = False
                 self.is_open = True
                 self.select_reward()
+                inventory.add_card(self.selected_reward['name'])
+                print(self.selected_reward['name'])
                 self.animation_time = pygame.time.get_ticks()
             if self.spin_sound and current_time - self.last_sound_time > 300: #naprawiono nakładajacy sie dzwiek spinow
                 #self.spin_sound.play()
@@ -156,8 +154,6 @@ class Lootbox():
         screen.blit(text, (self.x, self.y -25))
 
     pass
-
-
 
 
 
