@@ -43,7 +43,8 @@ config_file = 'config.cfg'
 
 # domyslny config
 default_settings = {
-    'Display': {'fullscreen': 'True'}
+    'Display' : {'fullscreen': 'True'},
+    'Music' : {'volume' : '0.5'}
 }
 
 current_lootbox = None
@@ -323,7 +324,11 @@ instruction_button = Button(main_screen, 636, 600, 200, 60, "Instruction", (40,4
 
 fullscreen_button_info = Button(main_screen,300, 300, 200, 60, "Fullscreen", (40,40,40), (40,40,40))
 
-fullscreen_button= Button(main_screen, 600, 300, 200, 60, "", (40,40,40), (32,32,32), button_click_sound)
+fullscreen_button = Button(main_screen, 600, 300, 200, 60, "", (40,40,40), (32,32,32), button_click_sound)
+
+music_button_info = Button(main_screen,300, 400, 200, 60, "Volume", (40,40,40), (40,40,40))
+
+music_button = Button(main_screen, 600, 400, 200, 60, "", (40,40,40), (32,32,32), button_click_sound)
 
 hit_button = Button(main_screen, 636,400,200, 60,"Hit", (40,40,40),(32,32,32), button_click_sound)
 
@@ -359,7 +364,8 @@ table=toggle_fullscreen(fullscreen,table,"stol.jpg")
 case_background = toggle_fullscreen(fullscreen,case_background, "case_background.jpg")
 instruction_background = toggle_fullscreen(fullscreen, instruction_background, "instruction_background.jpg")
 # glosnosc glownej muzyki
-pygame.mixer.music.set_volume(0.5)
+music_volume = config.getfloat('Music','volume')
+pygame.mixer.music.set_volume(music_volume)
 
 # ustawienie logo
 pygame.display.set_icon(logo)
@@ -413,6 +419,7 @@ while running:
         if state == "OPTIONS":                                  # wszystkie zdarzenia w options
             if back_to_menu.handle_event(event):
                 state="MENU"
+
             if fullscreen_button.handle_event(event):
                 fullscreen = not fullscreen
                 if fullscreen:
@@ -427,7 +434,16 @@ while running:
                 case_background = toggle_fullscreen(fullscreen, case_background, "case_background.jpg")
                 instruction_background = toggle_fullscreen(fullscreen, instruction_background, "instruction_background.jpg")
 
-
+            if music_button.handle_event(event):
+                if music_volume < 1:
+                    music_volume += 0.25
+                    config.set('Music', 'volume', str(music_volume))
+                else:
+                    music_volume = 0
+                    config.set('Music', 'volume', str(music_volume))
+                with open(config_file, 'w') as configfile:
+                    config.write(configfile)
+            pygame.mixer.music.set_volume(music_volume)
 
     if state == "MENU":                                      #zarzadzanie muzyka i rysowaniem obiektow
         if music_manager.state != "MENU":
@@ -513,15 +529,21 @@ while running:
         quit_button.active = False
         fullscreen_button.active = True
         fullscreen_button_info.active = True
+        music_button.active = True
+        music_button_info.active = True
         back_to_menu.active = True
         instruction_button.active = False
 
         fullscreen_button.text = "Yes" if fullscreen else "No"
 
+        music_button.text = str(music_volume)
+
         main_screen.blit(main_menu_background, (0,0))
 
         fullscreen_button.draw(main_screen)
         fullscreen_button_info.draw(main_screen)
+        music_button.draw(main_screen)
+        music_button_info.draw(main_screen)
         back_to_menu.draw(main_screen)
 
     if state == "INSTRUCTION" :
