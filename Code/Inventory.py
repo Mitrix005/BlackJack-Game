@@ -52,14 +52,6 @@ class Inventory():
 
     def load_from_config(self):
         config.read(config_file)
-
-        if not config.has_section('Shelf'):
-            config.add_section('Shelf')
-            config.set('Shelf', "cards", "skin1")
-
-            with open(config_file, 'w') as configfile:
-                config.write(configfile)
-
         cards = config.get('Shelf', 'cards', fallback='')
         self.my_cards = cards.split(',')
 
